@@ -1,0 +1,6 @@
+openapi: 3.0.3
+info:
+  title: HIS + 康养服务平台 API
+  version: 0.1.0
+  description: TODO - 核心 REST 接口规范
+paths: {}
