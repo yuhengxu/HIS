@@ -1,0 +1,11 @@
+# devcase · 本地源码目录（不上传 git，请在本机保留）
+/AI_Hospital-main/
+/ecms-main/
+/hospital-management-emr-master/
+/hospitalrun-frontend-master/
+/openemr-master/
+/openmrs-core-master/
+/phlox-main/
+/zip/
+
+# 上传 git：AnalogyRslt/（分析结果）、README.MD、本 .gitignore
