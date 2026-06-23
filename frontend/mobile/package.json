@@ -1,0 +1,21 @@
+{
+  "name": "his-mobile-miniapp",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev:mp-weixin": "uni -p mp-weixin",
+    "build:mp-weixin": "uni build -p mp-weixin"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "latest",
+    "@dcloudio/uni-components": "latest",
+    "@dcloudio/uni-h5": "latest",
+    "@dcloudio/uni-mp-weixin": "latest",
+    "vue": "^3.5.12"
+  },
+  "devDependencies": {
+    "@dcloudio/vite-plugin-uni": "latest",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}

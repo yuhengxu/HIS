@@ -16,8 +16,20 @@ dev/
 ├── README.MD              ← 本文件
 ├── his/                   ← HIS 模块开发文档
 ├── care/                  ← 康养模块开发文档
-└── shared/                ← 共享层（账户、网关、AI 接入）开发文档
+├── shared/                ← 共享层（账户、网关、AI 接入）开发文档
+├── oa/                    ← OA 基座开发文档
+└── inventory/             ← 物资管理开发文档
 ```
+
+## 首期工程骨架
+
+| 目录 | 说明 | 依据 |
+|---|---|---|
+| `backend/` | Java 21 + Spring Boot 3 模块化单体 | `SAD.md` §2、§3 |
+| `frontend/admin/` | Vue 3 + TypeScript + Vite + Element Plus Web 管理端 | `SAD.md` §2 |
+| `frontend/mobile/` | uni-app + Vue 3 移动端骨架 | `SAD.md` §2 |
+| `infra/db/init/` | PostgreSQL schema 与 AI 只读账号初始化 | `Deployment.md` §3 |
+| `docker-compose.yml` | 首期一键部署入口 | `Deployment.md` |
 
 ## 编写规则
 

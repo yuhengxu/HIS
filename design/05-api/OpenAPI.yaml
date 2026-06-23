@@ -2,5 +2,75 @@ openapi: 3.0.3
 info:
   title: HIS + 康养服务平台 API
   version: 0.1.0
-  description: TODO - 核心 REST 接口规范
-paths: {}
+  description: 核心 REST 接口规范。首期覆盖系统健康检查、模块清单与后续 OA/物资接口基线。
+servers:
+  - url: /api/v1
+paths:
+  /system/health:
+    get:
+      operationId: systemHealth
+      summary: 服务健康检查
+      description: 调用方为部署平台或运维人员；权限要求为匿名；AI 不可调用。
+      tags: [System]
+      responses:
+        '200':
+          description: 服务可用
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /system/modules:
+    get:
+      operationId: systemModules
+      summary: 首期模块清单
+      description: 调用方为前端；权限要求为匿名；AI 不可调用。
+      tags: [System]
+      responses:
+        '200':
+          description: 模块清单
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModuleInfo'
+  /inventory/items:
+    get:
+      operationId: listInventoryItems
+      summary: 物资档案列表
+      description: 调用方为 Web 管理端或授权 AI；权限要求 `inventory:item:read`；AI 可只读调用。
+      tags: [Inventory]
+      responses:
+        '200':
+          description: 物资档案列表
+  /inventory/stocks:
+    get:
+      operationId: listInventoryStocks
+      summary: 库存查询
+      description: 调用方为 Web 管理端或授权 AI；权限要求 `inventory:stock:read`；AI 可只读调用。
+      tags: [Inventory]
+      responses:
+        '200':
+          description: 库存列表
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, service]
+      properties:
+        status:
+          type: string
+          example: UP
+        service:
+          type: string
+          example: his-kangyang-backend
+    ModuleInfo:
+      type: object
+      required: [code, name, description]
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        description:
+          type: string

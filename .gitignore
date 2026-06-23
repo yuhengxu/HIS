@@ -1,0 +1,22 @@
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
+
+# Logs/env
+*.log
+.env
+
+# Java
+target/
+build/
+.gradle/
+
+# Node
+node_modules/
+dist/
+coverage/
+
+# Docker/runtime
+data/
+*.pid

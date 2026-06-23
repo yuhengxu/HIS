@@ -1,0 +1,60 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: his-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-his_kangyang}
+      POSTGRES_USER: ${POSTGRES_USER:-his_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-his_admin_password}
+      HIS_AI_READONLY_PASSWORD: ${HIS_AI_READONLY_PASSWORD:-his_ai_readonly_password}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infra/db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-his_admin} -d ${POSTGRES_DB:-his_kangyang}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: his-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    container_name: his-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-his_kangyang}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-his_admin}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-his_admin_password}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  admin-web:
+    build:
+      context: ./frontend/admin
+    container_name: his-admin-web
+    ports:
+      - "${ADMIN_WEB_PORT:-8081}:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres-data:

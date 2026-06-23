@@ -1,0 +1,14 @@
+{
+  "name": "HIS + 康养移动端",
+  "appid": "__UNI__HIS_KANGYANG",
+  "description": "微信小程序与企业微信小程序首期骨架",
+  "versionName": "0.1.0",
+  "versionCode": "1",
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": false
+    },
+    "usingComponents": true
+  }
+}
