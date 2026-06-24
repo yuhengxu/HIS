@@ -36,8 +36,19 @@ Source of truth: `README.MD`.
 - Whenever code is produced, state the source document section it is based on, for example `based on PRD.md section 3.2`.
 - When a code change affects tables, APIs, or permissions, update the corresponding documents under `design/`.
 - All tables, fields, primary keys, indexes, foreign keys, and lifecycle rules must be described and traceable.
+- Every turn must generate or reference an execution plan under `plans/` before changing docs, code, or tests.
+- Follow the active plan in order: documents first, then code, then tests. If implementation diverges, update the plan or explicitly record the reason.
 
 ## Required Workflow
+
+### Plan Driven Execution
+
+Before implementation work in every turn:
+
+1. Read or create the active plan in `plans/`.
+2. Confirm the plan covers documents, code, tests, acceptance criteria, and risks.
+3. Execute in plan order.
+4. If a structural change is discovered, update the plan before continuing.
 
 Do not immediately code after receiving a requirement. Work through this sequence first:
 

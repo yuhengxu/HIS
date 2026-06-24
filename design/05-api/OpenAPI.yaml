@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
   title: HIS + 康养服务平台 API
-  version: 0.1.0
-  description: 核心 REST 接口规范。首期覆盖系统健康检查、模块清单与后续 OA/物资接口基线。
+  version: 0.2.0
+  description: 第一阶段 OA 基座、IAM、物资管理 REST API。
 servers:
   - url: /api/v1
 paths:
@@ -10,67 +10,312 @@ paths:
     get:
       operationId: systemHealth
       summary: 服务健康检查
-      description: 调用方为部署平台或运维人员；权限要求为匿名；AI 不可调用。
       tags: [System]
       responses:
-        '200':
-          description: 服务可用
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HealthResponse'
+        '200': { description: OK }
   /system/modules:
     get:
       operationId: systemModules
-      summary: 首期模块清单
-      description: 调用方为前端；权限要求为匿名；AI 不可调用。
+      summary: 模块清单
       tags: [System]
       responses:
-        '200':
-          description: 模块清单
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ModuleInfo'
+        '200': { description: OK }
+  /auth/login:
+    post:
+      operationId: login
+      summary: 登录
+      description: 匿名调用；AI 不允许调用。管理员初始密码为 1qaz@WSX，其他成员初始密码为 qwer1234。
+      tags: [IAM]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string, format: password }
+      responses:
+        '200': { description: OK }
+  /iam/users:
+    get:
+      operationId: listUsers
+      summary: 用户列表
+      tags: [IAM]
+      responses:
+        '200': { description: OK }
+    post:
+      operationId: createUser
+      summary: 创建用户
+      tags: [IAM]
+      responses:
+        '200': { description: OK }
+  /iam/users/{userId}:
+    get:
+      operationId: getUser
+      summary: 用户详情
+      tags: [IAM]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200': { description: OK }
+    put:
+      operationId: updateUser
+      summary: 更新用户
+      tags: [IAM]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200': { description: OK }
+  /iam/users/{userId}/status:
+    put:
+      operationId: updateUserStatus
+      summary: 启用或禁用用户
+      tags: [IAM]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200': { description: OK }
+  /iam/users/{userId}/roles:
+    put:
+      operationId: updateUserRoles
+      summary: 分配用户角色
+      tags: [IAM]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200': { description: OK }
+  /iam/users/{userId}/permission-overrides:
+    put:
+      operationId: updateUserPermissionOverrides
+      summary: 用户单独授权或撤销
+      tags: [IAM]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200': { description: OK }
+  /iam/roles:
+    get:
+      operationId: listRoles
+      summary: 角色列表
+      tags: [IAM]
+      responses:
+        '200': { description: OK }
+    post:
+      operationId: createRole
+      summary: 创建角色
+      tags: [IAM]
+      responses:
+        '200': { description: OK }
+  /iam/permissions:
+    get:
+      operationId: listPermissions
+      summary: 权限点列表
+      tags: [IAM]
+      responses:
+        '200': { description: OK }
+  /iam/me/permissions:
+    get:
+      operationId: currentUserPermissions
+      summary: 当前用户有效权限
+      tags: [IAM]
+      responses:
+        '200': { description: OK }
+  /oa/process-definitions:
+    get:
+      operationId: listProcessDefinitions
+      summary: OA 流程定义列表
+      tags: [OA]
+      responses:
+        '200': { description: OK }
+    post:
+      operationId: createProcessDefinition
+      summary: 创建 OA 流程定义
+      tags: [OA]
+      responses:
+        '200': { description: OK }
+  /oa/instances/inventory-inbound:
+    post:
+      operationId: startInventoryInboundProcess
+      summary: 发起物资入库 OA
+      tags: [OA]
+      responses:
+        '200': { description: OK }
+  /oa/instances/inventory-outbound:
+    post:
+      operationId: startInventoryOutboundProcess
+      summary: 发起物资出库 OA
+      tags: [OA]
+      responses:
+        '200': { description: OK }
+  /oa/instances/reimbursement:
+    post:
+      operationId: startReimbursementProcess
+      summary: 发起报销 OA
+      tags: [OA]
+      responses:
+        '200': { description: OK }
+  /oa/instances:
+    get:
+      operationId: listProcessInstances
+      summary: OA 流程实例列表
+      tags: [OA]
+      responses:
+        '200': { description: OK }
+  /oa/tasks/todo:
+    get:
+      operationId: listTodoTasks
+      summary: 我的待办
+      tags: [OA]
+      responses:
+        '200': { description: OK }
+  /oa/tasks/{taskId}/approve:
+    post:
+      operationId: approveTask
+      summary: 审批通过
+      tags: [OA]
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200': { description: OK }
+  /oa/tasks/{taskId}/reject:
+    post:
+      operationId: rejectTask
+      summary: 审批驳回
+      tags: [OA]
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200': { description: OK }
+  /oa/instances/{instanceId}/urge:
+    post:
+      operationId: urgeInstance
+      summary: 催办流程
+      tags: [OA]
+      parameters:
+        - $ref: '#/components/parameters/InstanceId'
+      responses:
+        '200': { description: OK }
+  /inventory/warehouses:
+    get:
+      operationId: listWarehouses
+      summary: 仓库列表
+      tags: [Inventory]
+      responses:
+        '200': { description: OK }
+    post:
+      operationId: createWarehouse
+      summary: 创建仓库
+      tags: [Inventory]
+      responses:
+        '200': { description: OK }
   /inventory/items:
     get:
       operationId: listInventoryItems
       summary: 物资档案列表
-      description: 调用方为 Web 管理端或授权 AI；权限要求 `inventory:item:read`；AI 可只读调用。
       tags: [Inventory]
       responses:
-        '200':
-          description: 物资档案列表
+        '200': { description: OK }
+    post:
+      operationId: createInventoryItem
+      summary: 创建物资档案
+      tags: [Inventory]
+      responses:
+        '200': { description: OK }
+  /inventory/prices:
+    get:
+      operationId: listInventoryPrices
+      summary: 价格记录列表
+      tags: [Inventory]
+      responses:
+        '200': { description: OK }
+  /inventory/items/{itemId}/prices:
+    post:
+      operationId: createInventoryPrice
+      summary: 新增物资价格
+      tags: [Inventory]
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        '200': { description: OK }
   /inventory/stocks:
     get:
       operationId: listInventoryStocks
       summary: 库存查询
-      description: 调用方为 Web 管理端或授权 AI；权限要求 `inventory:stock:read`；AI 可只读调用。
+      description: 支持 keyword 参数按库存 ID、仓库编码/名称、物资编码/名称等模糊查询；AI 可只读调用。
+      tags: [Inventory]
+      parameters:
+        - name: keyword
+          in: query
+          required: false
+          schema: { type: string }
+          description: 模糊查询关键字
+      responses:
+        '200': { description: OK }
+    post:
+      operationId: createInventoryStock
+      summary: 新增库存
+      description: 需要 inventory:stock:write；AI 不允许调用。库存 ID 由数据库或运行时序列自增生成。
+      tags: [Inventory]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [warehouseId, itemId, quantity]
+              properties:
+                warehouseId: { type: integer, format: int64 }
+                itemId: { type: integer, format: int64 }
+                quantity: { type: number }
+      responses:
+        '200': { description: OK }
+  /inventory/stock-transactions:
+    get:
+      operationId: listStockTransactions
+      summary: 库存流水
       tags: [Inventory]
       responses:
-        '200':
-          description: 库存列表
+        '200': { description: OK }
+  /inventory/inbound-orders:
+    get:
+      operationId: listInboundOrders
+      summary: 入库单列表
+      tags: [Inventory]
+      responses:
+        '200': { description: OK }
+  /inventory/outbound-orders:
+    get:
+      operationId: listOutboundOrders
+      summary: 出库单列表
+      tags: [Inventory]
+      responses:
+        '200': { description: OK }
+  /inventory/reimbursements:
+    get:
+      operationId: listReimbursements
+      summary: 报销记录列表
+      tags: [Inventory]
+      responses:
+        '200': { description: OK }
 components:
-  schemas:
-    HealthResponse:
-      type: object
-      required: [status, service]
-      properties:
-        status:
-          type: string
-          example: UP
-        service:
-          type: string
-          example: his-kangyang-backend
-    ModuleInfo:
-      type: object
-      required: [code, name, description]
-      properties:
-        code:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
+  parameters:
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema: { type: integer, format: int64 }
+    TaskId:
+      name: taskId
+      in: path
+      required: true
+      schema: { type: integer, format: int64 }
+    InstanceId:
+      name: instanceId
+      in: path
+      required: true
+      schema: { type: integer, format: int64 }

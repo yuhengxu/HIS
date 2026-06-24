@@ -1,9 +1,9 @@
 server:
-  port: 8080
+  port: 18080
 
 spring:
   application:
-    name: his-kangyang-backend
+    name: health-platform-backend
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/his_kangyang}
     username: ${SPRING_DATASOURCE_USERNAME:his_admin}

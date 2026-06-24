@@ -2,7 +2,7 @@
 
 ## Phase 0：技术基线与工程骨架
 
-- 锁定 Vue 3、uni-app、Java 21、Spring Boot 3、PostgreSQL 16、Redis 7、Docker Compose。
+- 锁定 Vue 3.5、uni-app、Java 25 LTS、Spring Boot 4.1、PostgreSQL 16、Redis 7、Docker Compose。
 - 建立后端、Web 管理端、移动端、数据库初始化、部署配置骨架。
 - 建立 OA 基座、IAM、物资管理、审计、AI 接入的模块边界。
 

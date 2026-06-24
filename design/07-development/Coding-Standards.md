@@ -8,8 +8,11 @@
 
 ## 2. 后端
 
-- Java 21 + Spring Boot 3。
-- 包名根路径：`com.his.kangyang`。
+- Java 25 LTS + Spring Boot 4.1。
+- 包名根路径采用品牌中性命名：`com.health`。
+- 共享平台能力放在 `com.health.platform`。
+- HIS 独立业务域放在 `com.health.his`。
+- 康养独立业务域放在 `com.health.kangyang`。
 - 按模块划分包：`iam`、`oa`、`inventory`、`audit`、`aiaccess`、`system`。
 - Controller 只处理 HTTP 入参出参，业务逻辑放 Service。
 - 所有写操作必须记录审计日志。

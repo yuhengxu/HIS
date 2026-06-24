@@ -37,3 +37,9 @@ Adapted from `.cursor/rules/project-constitution.mdc`.
 - Code output must state the source document section it is based on.
 - Tables, fields, primary keys, and indexes must have explanations and traceable lists.
 - When code changes affect tables, APIs, or permissions, update corresponding documents under `design/`.
+
+## 计划驱动执行 / Plan Driven Execution
+
+- 每轮请求先在 `plans/` 生成或引用执行计划。
+- 按计划顺序推进文档、代码、测试。
+- 结构性偏离必须先更新计划或说明原因。

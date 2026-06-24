@@ -13,7 +13,7 @@
 |---|---|---|---|
 | `postgres` | `postgres:16` | `5432` | 主业务库，初始化 schema 与 AI 只读账号 |
 | `redis` | `redis:7-alpine` | `6379` | 会话、限流、缓存 |
-| `backend` | `backend/Dockerfile` | `8080` | Spring Boot 模块化单体 |
+| `backend` | `backend/Dockerfile` | `18080` | Spring Boot 模块化单体 |
 | `admin-web` | `frontend/admin/Dockerfile` | `8081` | Web 管理端静态资源 + Nginx |
 
 ## 3. 配置原则

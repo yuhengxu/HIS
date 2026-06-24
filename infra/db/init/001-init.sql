@@ -254,7 +254,7 @@ ON CONFLICT (api_code) DO NOTHING;
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'his_ai_readonly') THEN
-    CREATE ROLE his_ai_readonly LOGIN PASSWORD 'his_ai_readonly_password';
+    EXECUTE 'CREATE ROLE his_ai_readonly LOGIN PASSWORD ''his_ai_readonly_password''';
   END IF;
 END
 $$;

@@ -39,3 +39,25 @@
 | `audit_permission_change_log` | `pk_audit_permission_change_log` | - | `idx_audit_permission_change_log_target_time` |
 | `ai_api_allowlist` | `pk_ai_api_allowlist` | `uk_ai_api_allowlist_api_code` | `idx_ai_api_allowlist_scope` |
 | `ai_call_log` | `pk_ai_call_log` | - | `idx_ai_call_log_api_time` |
+
+## 5. 第一阶段新增表与索引
+
+| 表 | 主键 | 唯一索引 | 普通索引 |
+|---|---|---|---|
+| `oa_process_definition` | `pk_oa_process_definition` | `uk_oa_process_definition_code_version` | `idx_oa_process_definition_enabled` |
+| `oa_process_node` | `pk_oa_process_node` | `uk_oa_process_node_definition_code` | `idx_oa_process_node_definition_sort` |
+| `oa_process_node_assignee` | `pk_oa_process_node_assignee` | - | `idx_oa_process_node_assignee_node` |
+| `oa_process_instance` | `pk_oa_process_instance` | - | `idx_oa_process_instance_initiator_status`、`idx_oa_process_instance_business` |
+| `oa_task` | `pk_oa_task` | - | `idx_oa_task_status_user`、`idx_oa_task_status_role`、`idx_oa_task_instance` |
+| `oa_task_action_log` | `pk_oa_task_action_log` | - | `idx_oa_task_action_log_task` |
+| `oa_form_data` | `pk_oa_form_data` | `uk_oa_form_data_instance` | - |
+| `oa_reminder_policy` | `pk_oa_reminder_policy` | - | `idx_oa_reminder_policy_definition_node` |
+| `oa_reminder_log` | `pk_oa_reminder_log` | - | `idx_oa_reminder_log_task` |
+| `oa_urge_log` | `pk_oa_urge_log` | - | `idx_oa_urge_log_instance_time` |
+| `oa_wecom_robot_config` | `pk_oa_wecom_robot_config` | - | `idx_oa_wecom_robot_config_enabled` |
+| `oa_wecom_message_log` | `pk_oa_wecom_message_log` | - | `idx_oa_wecom_message_log_task` |
+| `inv_price_record` | `pk_inv_price_record` | - | `idx_inv_price_record_item_time` |
+| `inv_inbound_order_line` | `pk_inv_inbound_order_line` | - | `idx_inv_inbound_order_line_order` |
+| `inv_outbound_order_line` | `pk_inv_outbound_order_line` | - | `idx_inv_outbound_order_line_order` |
+| `inv_stocktake_order_line` | `pk_inv_stocktake_order_line` | - | `idx_inv_stocktake_order_line_order` |
+| `inv_reimbursement_record` | `pk_inv_reimbursement_record` | - | `idx_inv_reimbursement_record_oa`、`idx_inv_reimbursement_record_inbound` |

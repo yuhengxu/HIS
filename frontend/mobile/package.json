@@ -7,15 +7,16 @@
     "build:mp-weixin": "uni build -p mp-weixin"
   },
   "dependencies": {
-    "@dcloudio/uni-app": "latest",
-    "@dcloudio/uni-components": "latest",
-    "@dcloudio/uni-h5": "latest",
-    "@dcloudio/uni-mp-weixin": "latest",
-    "vue": "^3.5.12"
+    "@dcloudio/uni-app": "3.0.0-alpha-1000920260615733",
+    "@dcloudio/uni-components": "3.0.0-alpha-1000920260615733",
+    "@dcloudio/uni-h5": "3.0.0-alpha-1000920260615733",
+    "@dcloudio/uni-mp-weixin": "3.0.0-alpha-1000920260615733",
+    "vue": "^3.5.38"
   },
   "devDependencies": {
-    "@dcloudio/vite-plugin-uni": "latest",
-    "typescript": "^5.6.3",
-    "vite": "^5.4.10"
+    "@dcloudio/types": "3.4.31",
+    "@dcloudio/vite-plugin-uni": "3.0.0-alpha-1000920260615733",
+    "typescript": "^6.0.3",
+    "vite": "7.3.3"
   }
 }

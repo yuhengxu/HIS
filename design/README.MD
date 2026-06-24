@@ -39,3 +39,4 @@
 | 0.5.0 | 2026-06-17 | - | 合并子目录 README 到此文件，简化修订追踪为两级 | 01-vision ~ 07-development/README.MD、GUIDE.md |
 | 0.6.0 | 2026-06-17 | - | 明确双模块+模块化单体架构；新增 Test-Strategy.md | README.MD、SAD.md、his-ai-architect.mdc、dev/README.MD |
 | 0.7.0 | 2026-06-23 | Codex | 锁定首期技术栈并建立 OA/物资工程骨架 | SAD.md、Deployment.md、Permission-Design.md、04-database、05-api、07-development、dev/README.MD |
+| 0.8.0 | 2026-06-23 | Codex | 执行 OA 第一阶段计划，补齐 OA 流程、企业微信提醒、物资审批库存联动设计 | PRD.md、Permission-Design.md、04-database、05-api、dev/oa、dev/inventory |
