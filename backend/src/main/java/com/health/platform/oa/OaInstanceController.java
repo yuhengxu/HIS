@@ -5,12 +5,14 @@ import java.util.Map;
 
 import com.health.platform.common.ApiResponse;
 import com.health.platform.common.SecurityContextUtil;
+import com.health.platform.inventory.ItemRecord;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -22,9 +24,19 @@ public class OaInstanceController {
         this.processRuntimeService = processRuntimeService;
     }
 
+    @GetMapping("/startable")
+    public ApiResponse<List<Map<String, Object>>> startable(@RequestHeader("X-User-Id") Long actorUserId) {
+        return ApiResponse.ok(processRuntimeService.startableProcesses(SecurityContextUtil.requireUserId(actorUserId)));
+    }
+
     @GetMapping
     public ApiResponse<List<ProcessInstanceRecord>> list(@RequestHeader("X-User-Id") Long actorUserId) {
         return ApiResponse.ok(processRuntimeService.instances(SecurityContextUtil.requireUserId(actorUserId)));
+    }
+
+    @GetMapping("/materials/search")
+    public ApiResponse<List<ItemRecord>> searchMaterials(@RequestHeader("X-User-Id") Long actorUserId, @RequestParam(required = false) String keyword) {
+        return ApiResponse.ok(processRuntimeService.searchMaterials(SecurityContextUtil.requireUserId(actorUserId), keyword));
     }
 
     @PostMapping("/inventory-inbound")
@@ -40,6 +52,11 @@ public class OaInstanceController {
     @PostMapping("/reimbursement")
     public ApiResponse<ProcessInstanceRecord> startReimbursement(@RequestHeader("X-User-Id") Long actorUserId, @RequestBody Map<String, Object> form) {
         return ApiResponse.ok(processRuntimeService.start(SecurityContextUtil.requireUserId(actorUserId), "reimbursement", "reimbursement", "报销申请", form));
+    }
+
+    @PostMapping("/{instanceId}/material-drafts")
+    public ApiResponse<OaMaterialDraftRecord> createMaterialDraft(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long instanceId, @RequestBody OaMaterialDraftRecord draft) {
+        return ApiResponse.ok(processRuntimeService.createMaterialDraft(SecurityContextUtil.requireUserId(actorUserId), instanceId, draft));
     }
 
     @PostMapping("/{instanceId}/urge")

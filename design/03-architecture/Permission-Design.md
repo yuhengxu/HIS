@@ -60,3 +60,19 @@
 | `AI_CALLER` | AI 调用方，仅可访问 MCP 白名单只读接口 |
 
 汇报上级不是角色，而是 `iam_user.report_to_user_id` 用户关系字段。
+
+## 7. 增强版权限与菜单规则
+
+依据：`plans/oa20260624-iam-oa-inventory-enhancement.plan.md` §4、§7。
+
+| 能力 | 可见/可执行角色 | 接口强校验 |
+|---|---|---|
+| 用户管理菜单 | 仅 `SYSTEM_ADMIN` | `/api/v1/iam/users/**` 需 `SYSTEM_ADMIN` |
+| 角色权限菜单 | 仅 `SYSTEM_ADMIN` | `/api/v1/iam/roles/**`、`/api/v1/iam/permissions/**` 需 `SYSTEM_ADMIN` |
+| 物资档案写操作 | `SYSTEM_ADMIN`、`INVENTORY_ADMIN` | 写接口双重校验角色 + `inventory:item:write` |
+| OA 流程定义维护 | `SYSTEM_ADMIN`、`OA_ADMIN` | `oa:process:write` |
+| OA 流程实例发起 | 拥有 `oa:instance:create` 的用户 | 发起接口校验权限 |
+| 报销凭证上传 | 发起人或 `oa:attachment:write` | 报销提交校验 `voucherAttachmentIds` |
+| 物资图片上传 | `SYSTEM_ADMIN`、`INVENTORY_ADMIN`；OA 新物资图片随 OA 流转 | `inventory:image:write` / `oa:attachment:write` |
+
+权限点说明必须在角色权限页面和 `/api/v1/iam/permissions` 返回中提供中文 `name` 与 `description`。

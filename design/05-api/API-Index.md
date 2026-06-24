@@ -83,3 +83,20 @@
 | `inventory.inbound.list` | GET | `/api/v1/inventory/inbound-orders` | `inventory:inbound:create` | 否 |
 | `inventory.outbound.list` | GET | `/api/v1/inventory/outbound-orders` | `inventory:outbound:create` | 否 |
 | `inventory.reimbursement.list` | GET | `/api/v1/inventory/reimbursements` | `inventory:price:read` | 否 |
+
+## 6. 增强版 API
+
+依据：`plans/oa20260624-iam-oa-inventory-enhancement.plan.md` §3.5。
+
+| API | 方法 | 路径 | 权限/角色 | AI 可调用 |
+|---|---|---|---|---|
+| `iam.user.reset-password` | POST | `/api/v1/iam/users/{id}/reset-password` | `SYSTEM_ADMIN` | 否 |
+| `iam.role.delete` | DELETE | `/api/v1/iam/roles/{code}` | `SYSTEM_ADMIN` | 否 |
+| `iam.me.roles` | GET | `/api/v1/iam/me/roles` | 登录用户 | 否 |
+| `oa.instance.startable` | GET | `/api/v1/oa/instances/startable` | `oa:instance:create` | 否 |
+| `oa.material.search` | GET | `/api/v1/oa/instances/materials/search` | `inventory:item:read` | 否 |
+| `oa.material-draft.create` | POST | `/api/v1/oa/instances/{id}/material-drafts` | `oa:instance:create` | 否 |
+| `inventory.item.update` | PUT | `/api/v1/inventory/items/{id}` | `SYSTEM_ADMIN`/`INVENTORY_ADMIN` | 否 |
+| `inventory.item.image.add` | POST | `/api/v1/inventory/items/{id}/images` | `inventory:image:write` | 否 |
+| `attachment.upload` | POST | `/api/v1/attachments` | 按用途 | 否 |
+| `attachment.content` | GET | `/api/v1/attachments/{id}/content` | 授权读 | 否 |

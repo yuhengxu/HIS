@@ -17,9 +17,11 @@ public class OaStore {
     private final AtomicLong nodeId = new AtomicLong(0);
     private final AtomicLong instanceId = new AtomicLong(0);
     private final AtomicLong taskId = new AtomicLong(0);
+    private final AtomicLong materialDraftId = new AtomicLong(0);
     private final Map<Long, ProcessDefinitionRecord> definitions = new LinkedHashMap<>();
     private final Map<Long, ProcessInstanceRecord> instances = new LinkedHashMap<>();
     private final Map<Long, OaTaskRecord> tasks = new LinkedHashMap<>();
+    private final Map<Long, OaMaterialDraftRecord> materialDrafts = new LinkedHashMap<>();
 
     public OaStore() {
         seedDefaults();
@@ -31,6 +33,19 @@ public class OaStore {
     public Optional<ProcessDefinitionRecord> findDefinitionByCode(String code) { return definitions.values().stream().filter(d -> d.code().equals(code) && d.enabled()).findFirst(); }
     public Optional<ProcessInstanceRecord> findInstance(long id) { return Optional.ofNullable(instances.get(id)); }
     public Optional<OaTaskRecord> findTask(long id) { return Optional.ofNullable(tasks.get(id)); }
+
+    public OaMaterialDraftRecord addMaterialDraft(long instanceId, OaMaterialDraftRecord draft) {
+        OaMaterialDraftRecord saved = new OaMaterialDraftRecord(
+            materialDraftId.incrementAndGet(), instanceId, draft.name(), draft.category(), draft.itemType(),
+            draft.specification(), draft.unit(), draft.defaultPrice(), draft.supplier(), draft.createReason());
+        saved.imageAttachmentIds().addAll(draft.imageAttachmentIds());
+        materialDrafts.put(saved.id(), saved);
+        return saved;
+    }
+
+    public List<OaMaterialDraftRecord> materialDraftsByInstance(long instanceId) {
+        return materialDrafts.values().stream().filter(d -> d.instanceId() == instanceId).toList();
+    }
 
     public ProcessInstanceRecord addInstance(String processCode, String businessType, String title, long initiatorUserId, Map<String, Object> formData) {
         ProcessDefinitionRecord definition = findDefinitionByCode(processCode).orElseThrow();

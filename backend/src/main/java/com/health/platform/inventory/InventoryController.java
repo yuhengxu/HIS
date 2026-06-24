@@ -6,7 +6,9 @@ import java.util.Map;
 import com.health.platform.common.ApiResponse;
 import com.health.platform.common.SecurityContextUtil;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,13 +35,32 @@ public class InventoryController {
     }
 
     @GetMapping("/items")
-    public ApiResponse<List<ItemRecord>> items(@RequestHeader("X-User-Id") Long actorUserId) {
-        return ApiResponse.ok(inventoryStockService.items(SecurityContextUtil.requireUserId(actorUserId)));
+    public ApiResponse<List<ItemRecord>> items(@RequestHeader("X-User-Id") Long actorUserId, @RequestParam(required = false) String keyword) {
+        long actor = SecurityContextUtil.requireUserId(actorUserId);
+        if (keyword != null && !keyword.isBlank()) {
+            return ApiResponse.ok(inventoryStockService.searchItems(actor, keyword));
+        }
+        return ApiResponse.ok(inventoryStockService.items(actor));
+    }
+
+    @GetMapping("/items/{itemId}")
+    public ApiResponse<ItemRecord> getItem(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long itemId) {
+        return ApiResponse.ok(inventoryStockService.getItem(SecurityContextUtil.requireUserId(actorUserId), itemId));
     }
 
     @PostMapping("/items")
     public ApiResponse<ItemRecord> createItem(@RequestHeader("X-User-Id") Long actorUserId, @RequestBody InventoryStockService.ItemRequest request) {
         return ApiResponse.ok(inventoryStockService.createItem(SecurityContextUtil.requireUserId(actorUserId), request));
+    }
+
+    @PutMapping("/items/{itemId}")
+    public ApiResponse<ItemRecord> updateItem(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long itemId, @RequestBody InventoryStockService.ItemRequest request) {
+        return ApiResponse.ok(inventoryStockService.updateItem(SecurityContextUtil.requireUserId(actorUserId), itemId, request));
+    }
+
+    @PostMapping("/items/{itemId}/images")
+    public ApiResponse<ItemRecord> addItemImage(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long itemId, @RequestBody InventoryStockService.ItemImageRequest request) {
+        return ApiResponse.ok(inventoryStockService.addItemImage(SecurityContextUtil.requireUserId(actorUserId), itemId, request.attachmentId(), request.primary()));
     }
 
     @GetMapping("/prices")

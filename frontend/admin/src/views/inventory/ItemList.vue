@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { inventoryApi, type Item } from '../../api/inventory'
 
@@ -7,6 +7,13 @@ const rows = ref<Item[]>([])
 const loading = ref(false)
 const dialogVisible = ref(false)
 const form = reactive({ code: '', name: '', itemType: 'non_medical', unit: '', latestPrice: 0 })
+
+const canWrite = computed(() => {
+  const raw = localStorage.getItem('his.currentUser')
+  if (!raw) return false
+  const roles = (JSON.parse(raw) as { roleCodes?: string[] }).roleCodes ?? []
+  return roles.includes('SYSTEM_ADMIN') || roles.includes('INVENTORY_ADMIN')
+})
 
 async function load() {
   loading.value = true
@@ -40,10 +47,16 @@ load()
   <section class="page-section">
     <header class="section-head">
       <h1>物资档案</h1>
-      <el-button type="primary" @click="openCreate">新增物资</el-button>
+      <el-button v-if="canWrite" type="primary" @click="openCreate">新增物资</el-button>
     </header>
     <el-table :data="rows" v-loading="loading" border>
       <el-table-column prop="id" label="ID" width="90" />
+      <el-table-column label="图片" width="90">
+        <template #default="scope">
+          <img v-if="scope.row.primaryImageUrl" :src="scope.row.primaryImageUrl" alt="" class="item-thumb" />
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="code" label="编码" />
       <el-table-column prop="name" label="名称" />
       <el-table-column prop="itemType" label="类型" />
@@ -71,3 +84,7 @@ load()
     </el-dialog>
   </section>
 </template>
+
+<style scoped>
+.item-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 4px; }
+</style>

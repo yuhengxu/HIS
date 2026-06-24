@@ -155,3 +155,18 @@
 | `inv_outbound_order.oa_instance_id` | 出库单关联 OA 实例 |
 | `inv_inbound_order.total_amount` | 入库总金额 |
 | `inv_outbound_order.total_amount` | 出库总金额 |
+
+## 9. 增强版 IAM / 附件 / OA 物资草稿
+
+依据：`plans/oa20260624-iam-oa-inventory-enhancement.plan.md` §3.3-§3.4。
+
+| 表/字段 | 说明 |
+|---|---|
+| `iam_role.status` / `sort_order` / `is_system` / `deleted_at` | 角色启停、排序、系统内置保护、软删除 |
+| `iam_permission.name` / `description` / `domain` / `resource_type` / `is_system` / `enabled` | 权限点说明与启停 |
+| `iam_role_permission` | 角色权限关系，含唯一约束与审计字段 |
+| `file_attachment` | 通用附件：业务类型、用途、存储路径、哈希、上传人 |
+| `inv_item_image` | 物资图片关联 |
+| `oa_instance_attachment` | OA 实例附件关联 |
+| `inv_reimbursement_voucher` | 报销凭证关联 |
+| `oa_form_material_draft` | OA 表单内新物资草稿 |

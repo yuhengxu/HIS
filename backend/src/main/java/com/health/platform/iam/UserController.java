@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.health.platform.common.ApiResponse;
 import com.health.platform.common.SecurityContextUtil;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,7 +56,22 @@ public class UserController {
     }
 
     @PutMapping("/{userId}/permission-overrides")
-    public ApiResponse<UserRecord> updateOverrides(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long userId, @RequestBody Map<String, PermissionEffect> overrides) {
-        return ApiResponse.ok(userService.updatePermissionOverrides(SecurityContextUtil.requireUserId(actorUserId), userId, overrides));
+    public ApiResponse<UserRecord> updateOverrides(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long userId, @RequestBody PermissionOverrideRequest request) {
+        return ApiResponse.ok(userService.updatePermissionOverrides(
+            SecurityContextUtil.requireUserId(actorUserId), userId, request.overrides(), request.reason()));
+    }
+
+    @PostMapping("/{userId}/reset-password")
+    public ApiResponse<UserRecord> resetPassword(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long userId) {
+        return ApiResponse.ok(userService.resetPassword(SecurityContextUtil.requireUserId(actorUserId), userId));
+    }
+
+    @DeleteMapping("/{userId}")
+    public ApiResponse<Void> delete(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long userId) {
+        userService.delete(SecurityContextUtil.requireUserId(actorUserId), userId);
+        return ApiResponse.ok(null);
+    }
+
+    public record PermissionOverrideRequest(Map<String, PermissionEffect> overrides, String reason) {
     }
 }

@@ -1,10 +1,14 @@
 import { request } from './http'
+import type { Item } from './inventory'
 
 export type ProcessDefinition = { id: number; code: string; name: string; version: number; enabled: boolean }
 export type OaTask = { id: number; processInstanceId: number; assigneeMode: string; status: string; createdAt: string }
 export type ProcessInstance = { id: number; processCode: string; businessType: string; title: string; status: string }
+export type StartableProcess = { processCode: string; businessType: string; title: string; typeCode: string }
 
 export const oaApi = {
+  startable: () => request<StartableProcess[]>('/api/v1/oa/instances/startable'),
+  searchMaterials: (keyword?: string) => request<Item[]>(`/api/v1/oa/instances/materials/search${keyword ? `?keyword=${encodeURIComponent(keyword)}` : ''}`),
   processes: () => request<ProcessDefinition[]>('/api/v1/oa/process-definitions'),
   instances: () => request<ProcessInstance[]>('/api/v1/oa/instances'),
   todo: () => request<OaTask[]>('/api/v1/oa/tasks/todo'),

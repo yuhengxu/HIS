@@ -24,8 +24,17 @@ public class PermissionController {
     @GetMapping("/permissions")
     public ApiResponse<List<PermissionRecord>> permissions(@RequestHeader("X-User-Id") Long actorUserId) {
         long actor = SecurityContextUtil.requireUserId(actorUserId);
+        permissionService.requireRole(actor, "SYSTEM_ADMIN");
         permissionService.require(actor, "iam:permission:read");
         return ApiResponse.ok(List.copyOf(store.permissions()));
+    }
+
+    @GetMapping("/me/roles")
+    public ApiResponse<Set<String>> myRoles(@RequestHeader("X-User-Id") Long actorUserId) {
+        long actor = SecurityContextUtil.requireUserId(actorUserId);
+        return ApiResponse.ok(store.findUser(actor)
+            .map(user -> Set.copyOf(user.roleCodes()))
+            .orElse(Set.of()));
     }
 
     @GetMapping("/me/permissions")

@@ -54,7 +54,7 @@ class ProcessRuntimeServiceTest {
         final OaStore oaStore = new OaStore();
         final OaNotificationService notificationService = new OaNotificationService();
         final InventoryStore inventoryStore = new InventoryStore();
-        final InventoryStockService inventoryService = new InventoryStockService(inventoryStore, permissionService);
-        final ProcessRuntimeService runtime = new ProcessRuntimeService(oaStore, iamStore, permissionService, supervisorResolver, notificationService, auditService, List.of(inventoryService));
+        final InventoryStockService inventoryService = new InventoryStockService(inventoryStore, permissionService, auditService);
+        final ProcessRuntimeService runtime = new ProcessRuntimeService(oaStore, iamStore, permissionService, inventoryService, supervisorResolver, notificationService, auditService, List.of(inventoryService));
     }
 }

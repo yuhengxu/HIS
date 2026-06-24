@@ -1,7 +1,7 @@
 import { request } from './http'
 
 export type Warehouse = { id: number; code: string; name: string; warehouseType: string }
-export type Item = { id: number; code: string; name: string; itemType: string; unit: string; latestPrice: number }
+export type Item = { id: number; code: string; name: string; itemType: string; unit: string; latestPrice: number; primaryImageUrl?: string }
 export type Stock = { id: number; warehouseId: number; itemId: number; quantity: number }
 export type Price = { id: number; itemId: number; priceType: string; price: number; effectiveAt: string }
 

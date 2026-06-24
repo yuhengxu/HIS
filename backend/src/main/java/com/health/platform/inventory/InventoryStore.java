@@ -58,6 +58,39 @@ public class InventoryStore {
         return item;
     }
 
+    public List<ItemRecord> searchItems(String keyword) {
+        String normalized = keyword == null ? "" : keyword.trim().toLowerCase();
+        if (normalized.isBlank()) {
+            return List.copyOf(items.values());
+        }
+        return items.values().stream()
+            .filter(item -> item.code().toLowerCase().contains(normalized) || item.name().toLowerCase().contains(normalized))
+            .toList();
+    }
+
+    public ItemRecord findItem(long itemId) {
+        ItemRecord item = items.get(itemId);
+        if (item == null) {
+            throw new IllegalStateException("Item not found");
+        }
+        return item;
+    }
+
+    public ItemRecord findByNameAndSpec(String name, String specification) {
+        return items.values().stream()
+            .filter(item -> item.name().equalsIgnoreCase(name))
+            .findFirst()
+            .orElse(null);
+    }
+
+    public void addItemImage(long itemId, long attachmentId, boolean primary) {
+        ItemRecord item = findItem(itemId);
+        item.imageAttachmentIds().add(attachmentId);
+        if (primary) {
+            item.setPrimaryImageUrl("/api/v1/attachments/" + attachmentId + "/content");
+        }
+    }
+
     public List<StockRecord> stockRecords() {
         return List.copyOf(stocks.values());
     }
