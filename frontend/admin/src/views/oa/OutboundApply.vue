@@ -12,7 +12,7 @@ const warehouseOptions = [
 ]
 
 const form = reactive({
-  warehouseId: 1,
+  warehouseId: 2,
   itemId: undefined as number | undefined,
   quantity: 1,
 })

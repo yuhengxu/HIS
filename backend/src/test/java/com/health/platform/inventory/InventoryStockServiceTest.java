@@ -41,6 +41,16 @@ class InventoryStockServiceTest {
     }
 
     @Test
+    void inboundItemsAreFilteredByWarehouseTypeWithoutStockRequirement() {
+        InventoryStore store = new InventoryStore();
+        store.addItem("BED", "护理床", "non_medical", "张", new BigDecimal("800.00"));
+
+        assertTrue(store.searchItemsByWarehouseType(1, "").stream().noneMatch(item -> "办公用纸".equals(item.name())));
+        assertTrue(store.searchItemsByWarehouseType(2, "").stream().noneMatch(item -> "医用口罩".equals(item.name())));
+        assertTrue(store.searchItemsByWarehouseType(2, "").stream().anyMatch(item -> "护理床".equals(item.name())));
+    }
+
+    @Test
     void stockIdAutoIncrementsAndSearchMatchesItemName() {
         InventoryStore store = new InventoryStore();
         StockRecord stock = store.createStock(3, 1, 2, new BigDecimal("8"));

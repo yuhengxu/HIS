@@ -64,7 +64,7 @@ public class ProcessRuntimeService {
         }
         ProcessNodeRecord firstNode = store.sortedNodes(instance.processDefinitionId()).stream().findFirst()
             .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_STATE, "Process has no node"));
-        createTask(instance, firstNode);
+        enterNode(actorUserId, instance, firstNode);
         auditService.record(actorUserId, "oa.instance.create", "oa_process_instance", String.valueOf(instance.id()));
         return instance;
     }
@@ -85,6 +85,11 @@ public class ProcessRuntimeService {
     public List<ItemRecord> searchClaimableMaterials(long actorUserId, long warehouseId, String keyword) {
         permissionService.require(actorUserId, "inventory:outbound:create");
         return inventoryStockService.searchClaimableItems(actorUserId, warehouseId, keyword);
+    }
+
+    public List<ItemRecord> searchInboundMaterials(long actorUserId, long warehouseId, String keyword) {
+        permissionService.require(actorUserId, "inventory:inbound:create");
+        return inventoryStockService.searchInboundItems(actorUserId, warehouseId, keyword);
     }
 
     public ItemViewRecord itemView(long actorUserId, ItemRecord item) {
@@ -390,6 +395,17 @@ public class ProcessRuntimeService {
         notificationService.taskArrived(task.id(), targetUserId(task));
     }
 
+    private void enterNode(long actorUserId, ProcessInstanceRecord instance, ProcessNodeRecord node) {
+        if (shouldAutoSkipMissingSupervisor(instance, node)) {
+            OaTaskRecord skipped = store.addTask(instance, node, null);
+            skipped.approve(instance.initiatorUserId());
+            auditService.record(instance.initiatorUserId(), "oa.task.auto_skip_missing_supervisor", "oa_task", String.valueOf(skipped.id()));
+            advanceAfterApproval(actorUserId, instance, node.id());
+            return;
+        }
+        createTask(instance, node);
+    }
+
     private void createDraftConfirmTask(ProcessInstanceRecord instance) {
         ProcessNodeRecord draftConfirm = store.sortedNodes(instance.processDefinitionId()).stream()
             .filter(node -> node.assigneeMode() == AssigneeMode.INITIATOR_SELECTED || "draft_confirm".equals(node.nodeCode()))
@@ -405,6 +421,13 @@ public class ProcessRuntimeService {
             if (next == null) {
                 createDraftConfirmTask(instance);
                 return;
+            }
+            if (shouldAutoSkipMissingSupervisor(instance, next)) {
+                OaTaskRecord skipped = store.addTask(instance, next, null);
+                skipped.approve(instance.initiatorUserId());
+                auditService.record(instance.initiatorUserId(), "oa.task.auto_skip_missing_supervisor", "oa_task", String.valueOf(skipped.id()));
+                cursor = next.id();
+                continue;
             }
             if (!isAutoSkippableSameAssignee(actorUserId, instance, next)) {
                 createTask(instance, next);
@@ -427,6 +450,20 @@ public class ProcessRuntimeService {
             }
         }
         return store.addTask(instance, node, supervisor);
+    }
+
+    private boolean shouldAutoSkipMissingSupervisor(ProcessInstanceRecord instance, ProcessNodeRecord node) {
+        if (node.assigneeMode() != AssigneeMode.SUPERVISOR) {
+            return false;
+        }
+        return isOrganizationTopLevelAdministrator(instance.initiatorUserId());
+    }
+
+    private boolean isOrganizationTopLevelAdministrator(long userId) {
+        return supervisorResolver.resolveDirectSupervisor(userId) == null
+            && permissionService.hasPermission(userId, "iam:user:create")
+            && permissionService.hasPermission(userId, "iam:role:write")
+            && permissionService.hasPermission(userId, "iam:user-permission:write");
     }
 
     private boolean isAutoSkippableSameAssignee(long actorUserId, ProcessInstanceRecord instance, ProcessNodeRecord node) {

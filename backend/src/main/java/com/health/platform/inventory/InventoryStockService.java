@@ -63,6 +63,11 @@ public class InventoryStockService implements OaApprovalListener {
         return store.searchClaimableItems(warehouseId, keyword).stream().filter(item -> canClaimItem(actorUserId, item)).toList();
     }
 
+    public List<ItemRecord> searchInboundItems(long actorUserId, long warehouseId, String keyword) {
+        permissionService.require(actorUserId, "inventory:inbound:create");
+        return store.searchItemsByWarehouseType(warehouseId, keyword).stream().filter(item -> canClaimItem(actorUserId, item)).toList();
+    }
+
     public ItemRecord getItem(long actorUserId, long itemId) {
         permissionService.require(actorUserId, "inventory:item:read");
         try {

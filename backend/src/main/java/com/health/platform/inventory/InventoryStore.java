@@ -89,6 +89,15 @@ public class InventoryStore {
             .toList();
     }
 
+    public List<ItemRecord> searchItemsByWarehouseType(long warehouseId, String keyword) {
+        WarehouseRecord warehouse = findWarehouse(warehouseId);
+        String normalized = keyword == null ? "" : keyword.trim().toLowerCase();
+        return items.values().stream()
+            .filter(item -> matchesWarehouseType(warehouse, item))
+            .filter(item -> normalized.isBlank() || item.code().toLowerCase().contains(normalized) || item.name().toLowerCase().contains(normalized))
+            .toList();
+    }
+
     public ItemRecord findItem(long itemId) {
         ItemRecord item = items.get(itemId);
         if (item == null) {

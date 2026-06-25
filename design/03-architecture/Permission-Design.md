@@ -76,6 +76,7 @@
 | 工作台本人流程与待办读取 | `SYSTEM_ADMIN`、`OA_ADMIN`、`INVENTORY_ADMIN`、`FINANCE_APPROVER`、`DEPARTMENT_MANAGER`、`EMPLOYEE` | 本人流程 `/api/v1/oa/instances/mine` 校验登录用户；待办 `/api/v1/oa/tasks/todo` 校验 `oa:task:read` |
 | 工作台已办读取 | 拥有 `oa:task:read` 的当前用户 | `/api/v1/oa/tasks/handled` 仅返回 `claimed_by_user_id` 等于当前用户的已处理任务 |
 | OA 连续同人审批 | 当前节点处理人与下一节点解析处理人相同 | 当前人通过后，下一连续同人节点自动标记通过并记录审计；起草人确认节点不自动跳过 |
+| 顶层管理员无上级审批 | 无汇报上级且具备 IAM 管理员权限的发起人 | 汇报上级节点解析为空时自动标记通过并进入下一节点；非管理员或普通用户无上级仍进入待配置 |
 | 普通角色库存后台访问 | 普通角色无权限 | `EMPLOYEE`、`DEPARTMENT_MANAGER`、`FINANCE_APPROVER` 不授予 `inventory:item:read` / `inventory:stock:read` |
 | 库存与流水读取 | `SYSTEM_ADMIN` 可读全部；`INVENTORY_ADMIN` 仅可读普通物资 | `/api/v1/inventory/stocks`、`/api/v1/inventory/stock-transactions` 按物资标签过滤；特殊物资仅系统管理员可见 |
 | 物资库总库存读取 | `SYSTEM_ADMIN` 可读全部；`INVENTORY_ADMIN` 仅可读普通物资 | `/api/v1/inventory/stock-summary` 返回仓库 + 物资维度总库存，不暴露入库人明细 |
@@ -101,6 +102,8 @@ OA 标准闭环为：起草节点发起 -> 一个或多个审批节点审批 -> 
 | 任一审批节点驳回 | 回到起草人确认节点 | 否 |
 | 起草人确认通过 | 流程标记为已结束/通过 | 是，触发入库、领用、报销等业务监听 |
 | 起草人确认驳回/关闭 | 流程标记为已驳回 | 否 |
+| 发起人无汇报上级且具备 IAM 管理员权限 | 视为组织最高级，该汇报上级节点自动通过，继续后续节点 | 否 |
+| 发起人无汇报上级但不具备 IAM 管理员权限 | 视为组织层级配置缺失，流程进入待配置状态 | 否 |
 
 起草人确认任务只能由流程发起人本人处理。该确认动作不授予发起人全局审批权限，仅允许处理自己的确认任务。
 

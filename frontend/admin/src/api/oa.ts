@@ -64,6 +64,8 @@ export const oaApi = {
   saveNodes: (id: number, nodes: ProcessNode[]) => request<ProcessDefinition>(`/api/v1/oa/process-definitions/${id}/nodes`, { method: 'PUT', body: JSON.stringify(nodes) }),
   startable: () => request<StartableProcess[]>('/api/v1/oa/instances/startable'),
   searchMaterials: (keyword?: string) => request<import('./inventory').Item[]>(`/api/v1/oa/instances/materials/search${keyword ? `?keyword=${encodeURIComponent(keyword)}` : ''}`),
+  searchInboundMaterials: (warehouseId: number, keyword?: string) =>
+    request<import('./inventory').Item[]>(`/api/v1/oa/instances/inbound-materials/search?warehouseId=${warehouseId}${keyword ? `&keyword=${encodeURIComponent(keyword)}` : ''}`),
   searchClaimableMaterials: (warehouseId: number, keyword?: string) =>
     request<import('./inventory').Item[]>(`/api/v1/oa/instances/claimable-materials/search?warehouseId=${warehouseId}${keyword ? `&keyword=${encodeURIComponent(keyword)}` : ''}`),
   instances: () => request<ProcessInstance[]>('/api/v1/oa/instances'),

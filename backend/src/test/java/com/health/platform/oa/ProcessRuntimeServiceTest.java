@@ -99,6 +99,37 @@ class ProcessRuntimeServiceTest {
     }
 
     @Test
+    void topLevelAdministratorSkipsMissingSupervisorAndContinuesToNextNode() {
+        Fixture fixture = new Fixture();
+        ProcessInstanceRecord instance = fixture.runtime.start(1, "inbound_material", "inventory_inbound", "入库", Map.of(
+            "warehouseId", 1,
+            "itemId", 1,
+            "quantity", 2,
+            "unitPrice", "0.60"
+        ));
+
+        assertEquals(InstanceStatus.RUNNING, instance.status());
+        assertEquals(1, fixture.runtime.handled(1).stream()
+            .filter(task -> task.assigneeMode() == AssigneeMode.SUPERVISOR)
+            .count());
+        assertEquals(1, fixture.runtime.todo(4).size());
+    }
+
+    @Test
+    void nonIamAdministratorWithoutSupervisorStillRequiresConfiguration() {
+        Fixture fixture = new Fixture();
+        ProcessInstanceRecord instance = fixture.runtime.start(4, "inbound_material", "inventory_inbound", "入库", Map.of(
+            "warehouseId", 1,
+            "itemId", 1,
+            "quantity", 2,
+            "unitPrice", "0.60"
+        ));
+
+        assertEquals(InstanceStatus.PENDING_CONFIG, instance.status());
+        assertTrue(fixture.runtime.todo(4).isEmpty());
+    }
+
+    @Test
     void managerCanOpenTodoDetailButInitiatorCannotOpenManagersTask() {
         Fixture fixture = new Fixture();
         fixture.runtime.start(3, "inbound_material", "inventory_inbound", "入库", Map.of(

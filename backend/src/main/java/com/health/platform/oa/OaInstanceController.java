@@ -51,6 +51,12 @@ public class OaInstanceController {
         return ApiResponse.ok(processRuntimeService.searchClaimableMaterials(actor, warehouseId, keyword).stream().map(item -> processRuntimeService.itemView(actor, item)).toList());
     }
 
+    @GetMapping("/inbound-materials/search")
+    public ApiResponse<List<ItemViewRecord>> searchInboundMaterials(@RequestHeader("X-User-Id") Long actorUserId, @RequestParam long warehouseId, @RequestParam(required = false) String keyword) {
+        long actor = SecurityContextUtil.requireUserId(actorUserId);
+        return ApiResponse.ok(processRuntimeService.searchInboundMaterials(actor, warehouseId, keyword).stream().map(item -> processRuntimeService.itemView(actor, item)).toList());
+    }
+
     @PostMapping("/inventory-inbound")
     public ApiResponse<ProcessInstanceRecord> startInbound(@RequestHeader("X-User-Id") Long actorUserId, @RequestBody Map<String, Object> form) {
         return ApiResponse.ok(processRuntimeService.start(SecurityContextUtil.requireUserId(actorUserId), "inbound_material", "inventory_inbound", "物资入库申请", form));

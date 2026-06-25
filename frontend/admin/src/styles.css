@@ -16,6 +16,7 @@ body,
 .sidebar {
   background: #18202f;
   color: #fff;
+  border-right: 1px solid #101827;
 }
 
 .brand {
@@ -30,11 +31,49 @@ body,
 
 .menu {
   border-right: 0;
-  background: transparent;
+  background: #18202f;
 }
 
-.menu .el-menu-item {
+.sidebar .el-menu,
+.sidebar .el-sub-menu,
+.sidebar .el-menu-item,
+.sidebar .el-sub-menu__title {
+  background: #18202f;
   color: #d7deea;
+}
+
+.sidebar .el-sub-menu__title:hover,
+.sidebar .el-menu-item:hover {
+  background: #253149;
+  color: #ffffff;
+}
+
+.sidebar .el-menu-item.is-active {
+  background: #2f6fed;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.sidebar .el-sub-menu.is-active > .el-sub-menu__title {
+  color: #ffffff;
+}
+
+.sidebar .el-icon {
+  color: inherit;
+}
+
+.sidebar .el-menu--inline {
+  background: #121a28;
+}
+
+.sidebar .el-menu--inline .el-menu-item,
+.sidebar .el-menu--inline .el-sub-menu__title {
+  background: #121a28;
+}
+
+.sidebar .el-menu--inline .el-menu-item:hover,
+.sidebar .el-menu--inline .el-sub-menu__title:hover {
+  background: #253149;
 }
 
 .topbar {

@@ -16,8 +16,8 @@ const imageDialogVisible = ref(false)
 const currentStock = ref<StockView | null>(null)
 const stockImages = ref<StockImage[]>([])
 const uploading = ref(false)
-const form = reactive({ warehouseId: 1, itemId: undefined as number | undefined, quantity: 0 })
-const adjustForm = reactive({ warehouseId: 1, itemId: undefined as number | undefined, quantity: 0, reason: '' })
+const form = reactive({ warehouseId: 2, itemId: undefined as number | undefined, quantity: 0 })
+const adjustForm = reactive({ warehouseId: 2, itemId: undefined as number | undefined, quantity: 0, reason: '' })
 const items = ref<Item[]>([])
 const itemLoading = ref(false)
 
@@ -54,13 +54,13 @@ async function load() {
 }
 
 function openCreate() {
-  Object.assign(form, { warehouseId: 1, itemId: undefined, quantity: 0 })
+  Object.assign(form, { warehouseId: 2, itemId: undefined, quantity: 0 })
   dialogVisible.value = true
   loadItems()
 }
 
 function openAdjust() {
-  Object.assign(adjustForm, { warehouseId: 1, itemId: undefined, quantity: 0, reason: '' })
+  Object.assign(adjustForm, { warehouseId: 2, itemId: undefined, quantity: 0, reason: '' })
   adjustDialogVisible.value = true
   loadItems()
 }

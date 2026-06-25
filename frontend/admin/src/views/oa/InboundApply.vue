@@ -2,7 +2,7 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { inventoryApi, type Item } from '../../api/inventory'
+import { type Item } from '../../api/inventory'
 import { oaApi } from '../../api/oa'
 
 const router = useRouter()
@@ -13,19 +13,14 @@ const warehouseOptions = [
 
 const form = reactive({
   materialMode: 'existing',
-  warehouseId: 1,
+  warehouseId: 2,
   itemId: undefined as number | undefined,
   quantity: 1,
   newMaterial: {
-    code: '',
     name: '',
     itemType: 'non_medical',
-    category: '',
-    specification: '',
     unit: '',
-    supplier: '',
     defaultPrice: 0,
-    createReason: '',
   },
 })
 
@@ -43,7 +38,7 @@ const totalAmount = computed(() => (Number(form.quantity || 0) * unitPrice.value
 async function loadItems(keyword = '') {
   itemLoading.value = true
   try {
-    items.value = await inventoryApi.items(keyword)
+    items.value = await oaApi.searchInboundMaterials(form.warehouseId, keyword)
   } finally {
     itemLoading.value = false
   }
@@ -68,15 +63,10 @@ async function submit() {
     payload.itemId = form.itemId
   } else {
     payload.newMaterial = {
-      code: form.newMaterial.code || undefined,
       name: form.newMaterial.name,
       itemType: form.newMaterial.itemType,
-      category: form.newMaterial.category,
-      specification: form.newMaterial.specification,
       unit: form.newMaterial.unit,
-      supplier: form.newMaterial.supplier,
       defaultPrice: Number(form.newMaterial.defaultPrice || 0),
-      createReason: form.newMaterial.createReason,
     }
   }
   await oaApi.startInbound(payload)
@@ -86,6 +76,12 @@ async function submit() {
 
 watch(() => form.itemId, (id) => {
   if (id && !selectedItem.value) loadItems(String(id))
+})
+
+watch(() => form.warehouseId, () => {
+  form.itemId = undefined
+  form.newMaterial.itemType = form.warehouseId === 1 ? 'medical' : 'non_medical'
+  loadItems()
 })
 
 onMounted(() => loadItems())
@@ -121,22 +117,17 @@ onMounted(() => loadItems())
         </el-select>
       </el-form-item>
       <template v-else>
-        <el-form-item label="物资编码"><el-input v-model="form.newMaterial.code" class="form-control" placeholder="不填则审批后自动生成" /></el-form-item>
         <el-form-item label="物资名称"><el-input v-model="form.newMaterial.name" class="form-control" /></el-form-item>
         <el-form-item label="物资类型">
-          <el-select v-model="form.newMaterial.itemType" class="form-control">
+          <el-select v-model="form.newMaterial.itemType" class="form-control" disabled>
             <el-option label="医疗物资" value="medical" />
             <el-option label="非医疗物资" value="non_medical" />
           </el-select>
         </el-form-item>
-        <el-form-item label="分类"><el-input v-model="form.newMaterial.category" class="form-control" /></el-form-item>
-        <el-form-item label="规格"><el-input v-model="form.newMaterial.specification" class="form-control" /></el-form-item>
-        <el-form-item label="单位"><el-input v-model="form.newMaterial.unit" class="form-control" /></el-form-item>
-        <el-form-item label="供应商"><el-input v-model="form.newMaterial.supplier" class="form-control" /></el-form-item>
-        <el-form-item label="新增原因"><el-input v-model="form.newMaterial.createReason" type="textarea" class="form-control" /></el-form-item>
+        <el-form-item label="单位"><el-input v-model="form.newMaterial.unit" class="form-control" placeholder="例如：个、张、克、千克" /></el-form-item>
       </template>
       <el-form-item label="数量"><el-input-number v-model="form.quantity" :min="1" :precision="2" /></el-form-item>
-      <el-form-item :label="form.materialMode === 'new' ? '预估单价' : '单价'">
+      <el-form-item label="单价">
         <el-input-number v-if="form.materialMode === 'new'" v-model="form.newMaterial.defaultPrice" :min="0" :precision="2" class="form-control" />
         <span v-else>{{ unitPrice.toFixed(2) }}</span>
       </el-form-item>
