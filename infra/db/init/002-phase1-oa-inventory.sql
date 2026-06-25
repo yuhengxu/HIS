@@ -10,6 +10,9 @@ CREATE INDEX IF NOT EXISTS idx_iam_user_report_to_user_id ON iam.iam_user(report
 ALTER TABLE inventory.inv_warehouse ADD COLUMN IF NOT EXISTS warehouse_type varchar(30) NOT NULL DEFAULT 'non_medical';
 CREATE INDEX IF NOT EXISTS idx_inv_warehouse_type ON inventory.inv_warehouse(warehouse_type);
 
+ALTER TABLE inventory.inv_stock ADD COLUMN IF NOT EXISTS owner_user_id bigint REFERENCES iam.iam_user(id);
+CREATE INDEX IF NOT EXISTS idx_inv_stock_owner_user_id ON inventory.inv_stock(owner_user_id);
+
 ALTER TABLE inventory.inv_item ADD COLUMN IF NOT EXISTS item_type varchar(30) NOT NULL DEFAULT 'non_medical';
 ALTER TABLE inventory.inv_item ADD COLUMN IF NOT EXISTS default_price numeric(18, 2) NOT NULL DEFAULT 0;
 ALTER TABLE inventory.inv_item ADD COLUMN IF NOT EXISTS latest_price numeric(18, 2) NOT NULL DEFAULT 0;
@@ -17,7 +20,9 @@ CREATE INDEX IF NOT EXISTS idx_inv_item_type ON inventory.inv_item(item_type);
 
 ALTER TABLE inventory.inv_inbound_order ADD COLUMN IF NOT EXISTS oa_instance_id bigint;
 ALTER TABLE inventory.inv_inbound_order ADD COLUMN IF NOT EXISTS total_amount numeric(18, 2) NOT NULL DEFAULT 0;
+ALTER TABLE inventory.inv_inbound_order ADD COLUMN IF NOT EXISTS reimbursement_linked boolean NOT NULL DEFAULT false;
 CREATE INDEX IF NOT EXISTS idx_inv_inbound_order_oa_instance_id ON inventory.inv_inbound_order(oa_instance_id);
+CREATE INDEX IF NOT EXISTS idx_inv_inbound_order_created_reimbursement ON inventory.inv_inbound_order(created_by, reimbursement_linked);
 
 ALTER TABLE inventory.inv_outbound_order ADD COLUMN IF NOT EXISTS oa_instance_id bigint;
 ALTER TABLE inventory.inv_outbound_order ADD COLUMN IF NOT EXISTS total_amount numeric(18, 2) NOT NULL DEFAULT 0;

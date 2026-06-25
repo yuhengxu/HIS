@@ -27,6 +27,16 @@ public class OaTaskController {
         return ApiResponse.ok(processRuntimeService.todo(SecurityContextUtil.requireUserId(actorUserId)));
     }
 
+    @GetMapping("/handled")
+    public ApiResponse<List<OaTaskRecord>> handled(@RequestHeader("X-User-Id") Long actorUserId) {
+        return ApiResponse.ok(processRuntimeService.handled(SecurityContextUtil.requireUserId(actorUserId)));
+    }
+
+    @GetMapping("/{taskId}")
+    public ApiResponse<OaTaskDetailRecord> detail(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long taskId) {
+        return ApiResponse.ok(processRuntimeService.taskDetail(SecurityContextUtil.requireUserId(actorUserId), taskId));
+    }
+
     @PostMapping("/{taskId}/approve")
     public ApiResponse<ProcessInstanceRecord> approve(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long taskId, @RequestBody(required = false) Map<String, String> body) {
         return ApiResponse.ok(processRuntimeService.approve(SecurityContextUtil.requireUserId(actorUserId), taskId, body == null ? null : body.get("comment")));

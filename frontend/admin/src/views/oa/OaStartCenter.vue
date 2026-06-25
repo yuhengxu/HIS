@@ -15,6 +15,15 @@ function openProcess(item: StartableProcess) {
   else if (item.typeCode === 'MATERIAL_OUTBOUND') router.push('/oa/outbound')
   else if (item.typeCode === 'REIMBURSEMENT') router.push('/oa/reimbursement')
 }
+
+function typeText(typeCode: string) {
+  const map: Record<string, string> = {
+    MATERIAL_INBOUND: '物资入库',
+    MATERIAL_OUTBOUND: '物品领用',
+    REIMBURSEMENT: '报销',
+  }
+  return map[typeCode] ?? typeCode
+}
 </script>
 
 <template>
@@ -24,7 +33,7 @@ function openProcess(item: StartableProcess) {
       <el-col v-for="item in processes" :key="item.typeCode" :span="8">
         <el-card shadow="hover" class="process-card" @click="openProcess(item)">
           <h3>{{ item.title }}</h3>
-          <p>{{ item.typeCode }}</p>
+          <p>{{ typeText(item.typeCode) }}</p>
           <el-button type="primary" link>立即发起</el-button>
         </el-card>
       </el-col>

@@ -1,6 +1,7 @@
 package com.health.platform.oa;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
@@ -18,7 +19,7 @@ import org.junit.jupiter.api.Test;
 
 class ProcessRuntimeServiceTest {
     @Test
-    void inboundApprovalFlowsThroughSupervisorAndRoleThenIncreasesStock() {
+    void inboundApprovalReturnsToDraftConfirmBeforeIncreasingStock() {
         Fixture fixture = new Fixture();
         ProcessInstanceRecord instance = fixture.runtime.start(3, "inbound_material", "inventory_inbound", "入库", Map.of(
             "warehouseId", 1,
@@ -33,8 +34,113 @@ class ProcessRuntimeServiceTest {
         OaTaskRecord inventoryTask = fixture.runtime.todo(4).get(0);
         fixture.runtime.approve(4, inventoryTask.id(), "入库");
 
+        assertEquals(InstanceStatus.RUNNING, instance.status());
+        assertTrue(fixture.inventoryStore.stockRecords().stream().noneMatch(s -> s.ownerUserId() == 3 && s.warehouseId() == 1 && s.itemId() == 1 && s.quantity().compareTo(new BigDecimal("5")) == 0));
+        OaTaskRecord draftConfirmTask = fixture.runtime.todo(3).get(0);
+        assertEquals(AssigneeMode.INITIATOR_SELECTED, draftConfirmTask.assigneeMode());
+        fixture.runtime.approve(3, draftConfirmTask.id(), "确认完成");
+
         assertEquals(InstanceStatus.APPROVED, instance.status());
-        assertTrue(fixture.inventoryStore.stockRecords().stream().anyMatch(s -> s.warehouseId() == 1 && s.itemId() == 1 && s.quantity().compareTo(new BigDecimal("105")) == 0));
+        assertTrue(fixture.inventoryStore.stockRecords().stream().anyMatch(s -> s.ownerUserId() == 3 && s.warehouseId() == 1 && s.itemId() == 1 && s.quantity().compareTo(new BigDecimal("5")) == 0));
+    }
+
+    @Test
+    void rejectedApprovalReturnsToDraftConfirmThenCanEndRejected() {
+        Fixture fixture = new Fixture();
+        ProcessInstanceRecord instance = fixture.runtime.start(3, "inbound_material", "inventory_inbound", "入库", Map.of(
+            "warehouseId", 1,
+            "itemId", 1,
+            "quantity", 5,
+            "unitPrice", "0.60"
+        ));
+
+        OaTaskRecord managerTask = fixture.runtime.todo(2).get(0);
+        fixture.runtime.reject(2, managerTask.id(), "不同意");
+
+        assertEquals(InstanceStatus.RUNNING, instance.status());
+        OaTaskRecord draftConfirmTask = fixture.runtime.todo(3).get(0);
+        assertEquals(AssigneeMode.INITIATOR_SELECTED, draftConfirmTask.assigneeMode());
+        fixture.runtime.reject(3, draftConfirmTask.id(), "确认退回");
+
+        assertEquals(InstanceStatus.REJECTED, instance.status());
+        assertTrue(fixture.inventoryStore.stockRecords().stream().noneMatch(s -> s.ownerUserId() == 3 && s.warehouseId() == 1 && s.itemId() == 1));
+    }
+
+    @Test
+    void employeeCanLoadWorkspaceAfterStartingInbound() {
+        Fixture fixture = new Fixture();
+        ProcessInstanceRecord instance = fixture.runtime.start(3, "inbound_material", "inventory_inbound", "入库", Map.of(
+            "warehouseId", 1,
+            "itemId", 1,
+            "quantity", 2,
+            "unitPrice", "0.60"
+        ));
+
+        assertTrue(fixture.runtime.todo(3).isEmpty());
+        assertEquals(1, fixture.runtime.myInstances(3).size());
+        assertEquals(instance.id(), fixture.runtime.myInstances(3).get(0).id());
+    }
+
+    @Test
+    void initiatorCanRevokeRunningProcessAndRemovePendingTodo() {
+        Fixture fixture = new Fixture();
+        ProcessInstanceRecord instance = fixture.runtime.start(3, "inbound_material", "inventory_inbound", "入库", Map.of(
+            "warehouseId", 1,
+            "itemId", 1,
+            "quantity", 2,
+            "unitPrice", "0.60"
+        ));
+        assertEquals(1, fixture.runtime.todo(2).size());
+
+        fixture.runtime.revoke(3, instance.id());
+
+        assertEquals(InstanceStatus.CANCELLED, instance.status());
+        assertTrue(fixture.runtime.todo(2).isEmpty());
+    }
+
+    @Test
+    void managerCanOpenTodoDetailButInitiatorCannotOpenManagersTask() {
+        Fixture fixture = new Fixture();
+        fixture.runtime.start(3, "inbound_material", "inventory_inbound", "入库", Map.of(
+            "warehouseId", 1,
+            "itemId", 1,
+            "quantity", 2,
+            "unitPrice", "0.60",
+            "amount", "1.20"
+        ));
+        OaTaskRecord managerTask = fixture.runtime.todo(2).get(0);
+
+        OaTaskDetailRecord detail = fixture.runtime.taskDetail(2, managerTask.id());
+
+        assertEquals("入库", detail.title());
+        assertEquals("普通员工", detail.initiatorName());
+        assertEquals("医用口罩 (MASK)", detail.displayData().get("物资"));
+        assertThrows(RuntimeException.class, () -> fixture.runtime.taskDetail(3, managerTask.id()));
+    }
+
+    @Test
+    void consecutiveSameAssigneeNodesAreAutoSkippedAndKeptAsHandled() {
+        Fixture fixture = new Fixture();
+        ProcessDefinitionRecord definition = fixture.oaStore.createDefinition("same_user_inbound", "同人审批入库", "inventory_inbound", "测试", 1);
+        fixture.oaStore.saveNodes(definition.id(), List.of(
+            new ProcessNodeRecord.NodeRequest("manager_one", "负责人一审", "APPROVAL", 10, AssigneeMode.USER, 2L, null, null, null, true, 1, 24),
+            new ProcessNodeRecord.NodeRequest("manager_two", "负责人二审", "APPROVAL", 20, AssigneeMode.USER, 2L, null, null, null, true, 1, 24)
+        ));
+        definition.markPublished(1);
+        ProcessInstanceRecord instance = fixture.runtime.start(3, "same_user_inbound", "inventory_inbound", "入库", Map.of(
+            "warehouseId", 1,
+            "itemId", 1,
+            "quantity", 2,
+            "unitPrice", "0.60"
+        ));
+
+        OaTaskRecord first = fixture.runtime.todo(2).get(0);
+        fixture.runtime.approve(2, first.id(), "同意");
+
+        assertTrue(fixture.runtime.todo(2).isEmpty());
+        assertEquals(2, fixture.runtime.handled(2).size());
+        assertEquals(AssigneeMode.INITIATOR_SELECTED, fixture.runtime.todo(3).get(0).assigneeMode());
+        assertEquals(InstanceStatus.RUNNING, instance.status());
     }
 
     @Test
@@ -54,7 +160,7 @@ class ProcessRuntimeServiceTest {
         final OaStore oaStore = new OaStore();
         final OaNotificationService notificationService = new OaNotificationService();
         final InventoryStore inventoryStore = new InventoryStore();
-        final InventoryStockService inventoryService = new InventoryStockService(inventoryStore, permissionService, auditService);
+        final InventoryStockService inventoryService = new InventoryStockService(inventoryStore, permissionService, auditService, iamStore);
         final ProcessRuntimeService runtime = new ProcessRuntimeService(oaStore, iamStore, permissionService, inventoryService, supervisorResolver, notificationService, auditService, List.of(inventoryService));
     }
 }

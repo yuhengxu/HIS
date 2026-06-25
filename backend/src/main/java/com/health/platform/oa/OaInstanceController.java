@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.health.platform.common.ApiResponse;
 import com.health.platform.common.SecurityContextUtil;
-import com.health.platform.inventory.ItemRecord;
+import com.health.platform.inventory.ItemViewRecord;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,9 +34,21 @@ public class OaInstanceController {
         return ApiResponse.ok(processRuntimeService.instances(SecurityContextUtil.requireUserId(actorUserId)));
     }
 
+    @GetMapping("/mine")
+    public ApiResponse<List<OaInstanceViewRecord>> mine(@RequestHeader("X-User-Id") Long actorUserId) {
+        return ApiResponse.ok(processRuntimeService.myInstances(SecurityContextUtil.requireUserId(actorUserId)));
+    }
+
     @GetMapping("/materials/search")
-    public ApiResponse<List<ItemRecord>> searchMaterials(@RequestHeader("X-User-Id") Long actorUserId, @RequestParam(required = false) String keyword) {
-        return ApiResponse.ok(processRuntimeService.searchMaterials(SecurityContextUtil.requireUserId(actorUserId), keyword));
+    public ApiResponse<List<ItemViewRecord>> searchMaterials(@RequestHeader("X-User-Id") Long actorUserId, @RequestParam(required = false) String keyword) {
+        long actor = SecurityContextUtil.requireUserId(actorUserId);
+        return ApiResponse.ok(processRuntimeService.searchMaterials(actor, keyword).stream().map(item -> processRuntimeService.itemView(actor, item)).toList());
+    }
+
+    @GetMapping("/claimable-materials/search")
+    public ApiResponse<List<ItemViewRecord>> searchClaimableMaterials(@RequestHeader("X-User-Id") Long actorUserId, @RequestParam long warehouseId, @RequestParam(required = false) String keyword) {
+        long actor = SecurityContextUtil.requireUserId(actorUserId);
+        return ApiResponse.ok(processRuntimeService.searchClaimableMaterials(actor, warehouseId, keyword).stream().map(item -> processRuntimeService.itemView(actor, item)).toList());
     }
 
     @PostMapping("/inventory-inbound")
@@ -46,7 +58,7 @@ public class OaInstanceController {
 
     @PostMapping("/inventory-outbound")
     public ApiResponse<ProcessInstanceRecord> startOutbound(@RequestHeader("X-User-Id") Long actorUserId, @RequestBody Map<String, Object> form) {
-        return ApiResponse.ok(processRuntimeService.start(SecurityContextUtil.requireUserId(actorUserId), "outbound_material", "inventory_outbound", "物资出库申请", form));
+        return ApiResponse.ok(processRuntimeService.start(SecurityContextUtil.requireUserId(actorUserId), "outbound_material", "inventory_outbound", "物品领用申请", form));
     }
 
     @PostMapping("/reimbursement")
@@ -62,5 +74,10 @@ public class OaInstanceController {
     @PostMapping("/{instanceId}/urge")
     public ApiResponse<OaTaskRecord> urge(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long instanceId) {
         return ApiResponse.ok(processRuntimeService.urge(SecurityContextUtil.requireUserId(actorUserId), instanceId));
+    }
+
+    @PostMapping("/{instanceId}/revoke")
+    public ApiResponse<ProcessInstanceRecord> revoke(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long instanceId) {
+        return ApiResponse.ok(processRuntimeService.revoke(SecurityContextUtil.requireUserId(actorUserId), instanceId));
     }
 }

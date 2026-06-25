@@ -14,6 +14,7 @@ public class ItemRecord {
     private String unit;
     private BigDecimal latestPrice;
     private String primaryImageUrl;
+    private String materialTag = "NORMAL";
     private final Set<Long> imageAttachmentIds = new LinkedHashSet<>();
 
     public ItemRecord(long id, String code, String name, String itemType, String unit, BigDecimal latestPrice) {
@@ -32,6 +33,7 @@ public class ItemRecord {
     public String unit() { return unit; }
     public BigDecimal latestPrice() { return latestPrice; }
     public String primaryImageUrl() { return primaryImageUrl; }
+    public String materialTag() { return materialTag; }
     public Set<Long> imageAttachmentIds() { return imageAttachmentIds; }
 
     public void update(String name, String itemType, String unit, BigDecimal latestPrice) {
@@ -43,6 +45,7 @@ public class ItemRecord {
 
     public void setLatestPrice(BigDecimal latestPrice) { this.latestPrice = latestPrice; }
     public void setPrimaryImageUrl(String primaryImageUrl) { this.primaryImageUrl = primaryImageUrl; }
+    public void setMaterialTag(String materialTag) { this.materialTag = materialTag == null || materialTag.isBlank() ? "NORMAL" : materialTag; }
 
     public long getId() { return id(); }
     public String getCode() { return code(); }
@@ -51,5 +54,6 @@ public class ItemRecord {
     public String getUnit() { return unit(); }
     public BigDecimal getLatestPrice() { return latestPrice(); }
     public String getPrimaryImageUrl() { return primaryImageUrl(); }
+    public String getMaterialTag() { return materialTag(); }
     public List<Long> getImageAttachmentIds() { return new ArrayList<>(imageAttachmentIds()); }
 }

@@ -27,7 +27,7 @@ class ReimbursementValidationTest {
         PermissionService permissionService = new PermissionService(iamStore);
         AuditService auditService = new AuditService();
         UserService userService = new UserService(iamStore, permissionService, auditService);
-        InventoryStockService inventoryStockService = new InventoryStockService(new InventoryStore(), permissionService, auditService);
+        InventoryStockService inventoryStockService = new InventoryStockService(new InventoryStore(), permissionService, auditService, iamStore);
         service = new ProcessRuntimeService(
             new OaStore(),
             iamStore,

@@ -91,7 +91,7 @@ public class AttachmentService {
 
     private void validateUploadPermission(long actorUserId, String usageType) {
         if ("material_image".equals(usageType)) {
-            permissionService.requireAny(actorUserId, "inventory:image:write", "oa:attachment:write");
+            permissionService.requireAny(actorUserId, "inventory:item:image:write", "inventory:image:write", "inventory:stock:image:write", "oa:attachment:write");
             return;
         }
         if ("reimbursement_voucher".equals(usageType) || "oa_attachment".equals(usageType)) {

@@ -15,9 +15,9 @@ class InventoryPermissionTest {
 
     @BeforeEach
     void setUp() {
-        IamStore store = new IamStore();
-        PermissionService permissionService = new PermissionService(store);
-        service = new InventoryStockService(new InventoryStore(), permissionService, new AuditService());
+        IamStore iamStore = new IamStore();
+        PermissionService permissionService = new PermissionService(iamStore);
+        service = new InventoryStockService(new InventoryStore(), permissionService, new AuditService(), iamStore);
     }
 
     @Test
@@ -30,5 +30,21 @@ class InventoryPermissionTest {
     @Test
     void inventoryAdminCanCreateItem() {
         service.createItem(4, new InventoryStockService.ItemRequest("X2", "管理员物资", "non_medical", "个", null));
+    }
+
+    @Test
+    void ordinaryEmployeeCannotReadInventoryBackOffice() {
+        assertThrows(BusinessException.class, () -> service.items(3));
+        assertThrows(BusinessException.class, () -> service.stockViews(3, ""));
+        assertThrows(BusinessException.class, () -> service.transactions(3));
+    }
+
+    @Test
+    void onlySystemAdminCanCreateSpecialItem() {
+        assertThrows(BusinessException.class, () -> service.createItem(4,
+            new InventoryStockService.ItemRequest("S1", "特殊物资", "medical", "个", null, "SPECIAL")));
+        service.createItem(1, new InventoryStockService.ItemRequest("S2", "特殊物资", "medical", "个", null, "SPECIAL"));
+        assertTrue(service.items(4).stream().noneMatch(item -> "SPECIAL".equals(item.materialTag())));
+        assertTrue(service.items(1).stream().anyMatch(item -> "SPECIAL".equals(item.materialTag())));
     }
 }

@@ -120,6 +120,11 @@ public class IamStore {
             perm("iam:user-permission:write", "用户单独授权", "IAM", "user_permission", "对单个用户加授或撤销某个权限点", "SYSTEM_ADMIN"),
             perm("oa:process:read", "OA 流程定义查看", "OA", "process", "查看可发起流程和流程定义详情", "SYSTEM_ADMIN", "OA_ADMIN", "EMPLOYEE"),
             perm("oa:process:write", "OA 流程定义维护", "OA", "process", "新增、修改、启停 OA 流程定义和节点", "SYSTEM_ADMIN", "OA_ADMIN"),
+            perm("oa:process-definition:create", "流程定义新增", "OA", "process", "新增或复制 OA 流程定义", "SYSTEM_ADMIN", "OA_ADMIN"),
+            perm("oa:process-definition:update", "流程定义修改", "OA", "process", "修改流程定义基础信息", "SYSTEM_ADMIN", "OA_ADMIN"),
+            perm("oa:process-definition:delete", "流程定义删除", "OA", "process", "删除或停用流程定义", "SYSTEM_ADMIN", "OA_ADMIN"),
+            perm("oa:process-definition:publish", "流程定义发布", "OA", "process", "发布流程定义为可发起状态", "SYSTEM_ADMIN", "OA_ADMIN"),
+            perm("oa:process-node:write", "流程节点维护", "OA", "process", "保存流程审批节点配置", "SYSTEM_ADMIN", "OA_ADMIN"),
             perm("oa:instance:create", "OA 流程发起", "OA", "instance", "在 OA 发起页选择具体流程并提交申请", "SYSTEM_ADMIN", "OA_ADMIN", "INVENTORY_ADMIN", "EMPLOYEE"),
             perm("oa:instance:read", "OA 实例查看", "OA", "instance", "查看本人发起、本人待办或授权范围内的 OA 实例", "SYSTEM_ADMIN", "OA_ADMIN", "INVENTORY_ADMIN", "EMPLOYEE"),
             perm("oa:task:read", "OA 待办查看", "OA", "task", "查看本人待办、已办、相关审批任务", "SYSTEM_ADMIN", "OA_ADMIN", "INVENTORY_ADMIN", "FINANCE_APPROVER", "DEPARTMENT_MANAGER", "EMPLOYEE"),
@@ -129,17 +134,26 @@ public class IamStore {
             perm("oa:attachment:write", "OA 附件上传", "OA", "attachment", "在 OA 表单或审批过程中上传物资图片、凭证等附件", "SYSTEM_ADMIN", "OA_ADMIN", "INVENTORY_ADMIN", "EMPLOYEE"),
             perm("inventory:warehouse:read", "仓库查看", "Inventory", "warehouse", "查看仓库档案", "SYSTEM_ADMIN", "INVENTORY_ADMIN"),
             perm("inventory:warehouse:write", "仓库维护", "Inventory", "warehouse", "新增、修改、停用仓库档案", "SYSTEM_ADMIN", "INVENTORY_ADMIN"),
-            perm("inventory:item:read", "物资档案查看", "Inventory", "item", "查看物资档案、图片、分类、规格、单位、价格摘要", "SYSTEM_ADMIN", "INVENTORY_ADMIN", "EMPLOYEE"),
+            perm("inventory:item:read", "物资档案查看", "Inventory", "item", "查看物资档案、图片、分类、规格、单位、价格摘要", "SYSTEM_ADMIN", "INVENTORY_ADMIN"),
             perm("inventory:item:write", "物资档案维护", "Inventory", "item", "新增、修改、删除物资档案和物资图片", "SYSTEM_ADMIN", "INVENTORY_ADMIN"),
-            perm("inventory:price:read", "价格查看", "Inventory", "price", "查看物资价格记录", "SYSTEM_ADMIN", "INVENTORY_ADMIN", "EMPLOYEE"),
+            perm("inventory:price:read", "价格查看", "Inventory", "price", "查看物资价格记录", "SYSTEM_ADMIN", "INVENTORY_ADMIN"),
             perm("inventory:price:write", "价格维护", "Inventory", "price", "维护物资价格记录", "SYSTEM_ADMIN", "INVENTORY_ADMIN"),
             perm("inventory:inbound:create", "入库申请", "Inventory", "inbound", "发起物资入库 OA 或创建入库草稿", "SYSTEM_ADMIN", "INVENTORY_ADMIN", "EMPLOYEE"),
             perm("inventory:inbound:approve", "入库审批", "Inventory", "inbound", "入库 OA 审批通过后生成入库单和库存流水", "SYSTEM_ADMIN", "INVENTORY_ADMIN"),
-            perm("inventory:outbound:create", "出库申请", "Inventory", "outbound", "发起物资出库 OA 或创建出库草稿", "SYSTEM_ADMIN", "INVENTORY_ADMIN", "EMPLOYEE"),
-            perm("inventory:outbound:approve", "出库审批", "Inventory", "outbound", "出库 OA 审批通过后生成出库单和库存流水", "SYSTEM_ADMIN", "INVENTORY_ADMIN"),
-            perm("inventory:stock:read", "库存查询", "Inventory", "stock", "查询库存余额、库存流水、物资图片", "SYSTEM_ADMIN", "INVENTORY_ADMIN", "EMPLOYEE", "AI_CALLER"),
-            perm("inventory:stock:write", "库存调整", "Inventory", "stock", "执行库存调整、盘点差异处理", "SYSTEM_ADMIN", "INVENTORY_ADMIN"),
+            perm("inventory:outbound:create", "物品领用申请", "Inventory", "outbound", "发起物品领用流程或创建领用草稿", "SYSTEM_ADMIN", "INVENTORY_ADMIN", "EMPLOYEE"),
+            perm("inventory:outbound:approve", "物品领用审批", "Inventory", "outbound", "物品领用审批通过后生成领用单和库存流水", "SYSTEM_ADMIN", "INVENTORY_ADMIN"),
+            perm("inventory:stock:read", "库存查询", "Inventory", "stock", "查询库存余额、库存流水、物资图片", "SYSTEM_ADMIN", "INVENTORY_ADMIN", "AI_CALLER"),
+            perm("inventory:stock:write", "库存调整", "Inventory", "stock", "执行库存调整、盘点差异处理", "SYSTEM_ADMIN"),
             perm("inventory:image:write", "物资图片维护", "Inventory", "image", "上传、替换、删除物资主图和附图", "SYSTEM_ADMIN", "INVENTORY_ADMIN"),
+            perm("inventory:item:image:write", "物资图片维护", "Inventory", "image", "上传、替换、删除物资主图和附图", "SYSTEM_ADMIN", "INVENTORY_ADMIN"),
+            perm("inventory:stock:image:write", "库存图片维护", "Inventory", "image", "上传、删除库存现场图", "SYSTEM_ADMIN", "INVENTORY_ADMIN"),
+            perm("menu:read", "菜单查看", "IAM", "menu", "查看菜单树与角色/用户菜单绑定", "SYSTEM_ADMIN"),
+            perm("menu:write", "菜单维护", "IAM", "menu", "新增、修改、删除菜单", "SYSTEM_ADMIN"),
+            perm("menu:role-bind", "角色菜单绑定", "IAM", "menu", "为角色配置可见菜单", "SYSTEM_ADMIN"),
+            perm("menu:user-bind", "用户菜单覆盖", "IAM", "menu", "为用户加授或撤销菜单", "SYSTEM_ADMIN"),
+            perm("file:upload", "文件上传", "Audit", "file", "通用文件上传", "SYSTEM_ADMIN", "INVENTORY_ADMIN", "OA_ADMIN", "EMPLOYEE"),
+            perm("file:read", "文件读取", "Audit", "file", "读取已授权文件", "SYSTEM_ADMIN", "INVENTORY_ADMIN", "OA_ADMIN", "EMPLOYEE"),
+            perm("file:delete", "文件删除", "Audit", "file", "删除文件业务关联", "SYSTEM_ADMIN", "INVENTORY_ADMIN"),
             perm("finance:reimbursement:create", "报销申请", "Finance", "reimbursement", "发起报销 OA，填写金额、关联入库 OA、上传凭证", "SYSTEM_ADMIN", "EMPLOYEE"),
             perm("finance:reimbursement:approve", "报销审批", "Finance", "reimbursement", "处理报销审批节点，确认凭证与金额", "SYSTEM_ADMIN", "FINANCE_APPROVER"),
             perm("audit:read", "审计查看", "Audit", "audit", "查看用户、权限、物资、库存、OA、附件操作日志", "SYSTEM_ADMIN"),
@@ -154,20 +168,22 @@ public class IamStore {
     private void seedRoles() {
         createBuiltInRole("SYSTEM_ADMIN", "系统管理员", "管理全部配置", 1, permissions.keySet());
         createBuiltInRole("OA_ADMIN", "OA 管理员", "管理 OA", 2, Set.of(
-            "oa:process:read", "oa:process:write", "oa:instance:create", "oa:instance:read",
-            "oa:task:read", "oa:reminder:config", "oa:attachment:write"));
+            "oa:process:read", "oa:process:write", "oa:process-definition:create", "oa:process-definition:update",
+            "oa:process-definition:delete", "oa:process-definition:publish", "oa:process-node:write",
+            "oa:instance:create", "oa:instance:read", "oa:task:read", "oa:reminder:config", "oa:attachment:write"));
         createBuiltInRole("INVENTORY_ADMIN", "物资管理员", "管理物资", 3, Set.of(
             "inventory:warehouse:read", "inventory:warehouse:write", "inventory:item:read", "inventory:item:write",
             "inventory:price:read", "inventory:price:write", "inventory:inbound:create", "inventory:inbound:approve",
             "inventory:outbound:create", "inventory:outbound:approve", "inventory:stock:read", "inventory:stock:write",
-            "inventory:image:write", "oa:instance:create", "oa:instance:read", "oa:task:read", "oa:task:approve", "oa:attachment:write"));
+            "inventory:image:write", "inventory:item:image:write", "inventory:stock:image:write",
+            "file:upload", "file:read", "file:delete",
+            "oa:instance:create", "oa:instance:read", "oa:task:read", "oa:task:approve", "oa:attachment:write"));
         createBuiltInRole("FINANCE_APPROVER", "财务审批人", "审批报销", 4, Set.of(
             "oa:task:read", "oa:task:approve", "oa:instance:read", "finance:reimbursement:approve", "oa:attachment:write"));
         createBuiltInRole("DEPARTMENT_MANAGER", "部门负责人", "上级审批", 5, Set.of(
             "oa:task:read", "oa:task:approve", "oa:instance:read"));
         createBuiltInRole("EMPLOYEE", "普通员工", "发起和查看", 6, Set.of(
-            "oa:process:read", "oa:instance:create", "oa:instance:read", "oa:task:urge",
-            "inventory:item:read", "inventory:stock:read", "inventory:price:read",
+            "oa:process:read", "oa:instance:create", "oa:instance:read", "oa:task:read", "oa:task:urge",
             "inventory:inbound:create", "inventory:outbound:create", "finance:reimbursement:create", "oa:attachment:write"));
         createBuiltInRole("AI_CALLER", "AI 调用方", "只读调用", 7, Set.of(
             "inventory:item:read", "inventory:stock:read", "inventory:price:read", "ai-access:read"));

@@ -19,6 +19,7 @@ const form = reactive<UserRequest>({
 })
 
 const dialogTitle = computed(() => (editingId.value ? '编辑用户' : '新建用户'))
+const supervisorOptions = computed(() => users.value.filter((user) => user.id !== editingId.value))
 
 async function load() {
   loading.value = true
@@ -77,6 +78,12 @@ async function toggleStatus(user: UserRecord) {
   await load()
 }
 
+function supervisorName(id?: number) {
+  if (!id) return '-'
+  const user = users.value.find((item) => item.id === id)
+  return user ? `${user.displayName}（${user.username}）` : String(id)
+}
+
 onMounted(load)
 </script>
 
@@ -91,7 +98,9 @@ onMounted(load)
       <el-table-column prop="username" label="登录名" width="120" />
       <el-table-column prop="displayName" label="姓名" width="120" />
       <el-table-column prop="departmentName" label="部门" />
-      <el-table-column prop="reportToUserId" label="上级 ID" width="90" />
+      <el-table-column label="上级用户" width="160">
+        <template #default="scope">{{ supervisorName(scope.row.reportToUserId) }}</template>
+      </el-table-column>
       <el-table-column label="状态" width="90">
         <template #default="scope">
           <el-tag :type="scope.row.enabled ? 'success' : 'info'">{{ scope.row.enabled ? '启用' : '停用' }}</el-tag>
@@ -114,7 +123,11 @@ onMounted(load)
         <el-form-item label="登录名"><el-input v-model="form.username" :disabled="!!editingId" /></el-form-item>
         <el-form-item label="姓名"><el-input v-model="form.displayName" /></el-form-item>
         <el-form-item label="部门"><el-input v-model="form.departmentName" /></el-form-item>
-        <el-form-item label="上级用户 ID"><el-input-number v-model="form.reportToUserId" :min="1" class="form-control" /></el-form-item>
+        <el-form-item label="上级用户">
+          <el-select v-model="form.reportToUserId" class="form-control" filterable clearable placeholder="请选择上级用户">
+            <el-option v-for="user in supervisorOptions" :key="user.id" :label="`${user.displayName}（${user.username}）`" :value="user.id" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="企业微信 ID"><el-input v-model="form.wecomUserId" /></el-form-item>
         <el-form-item label="角色">
           <el-select v-model="form.roleCodes" multiple class="form-control">

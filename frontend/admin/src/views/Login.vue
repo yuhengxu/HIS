@@ -18,6 +18,9 @@ async function submit() {
     localStorage.setItem('his.currentUser', JSON.stringify(user))
     ElMessage.success('登录成功')
     router.push(String(route.query.redirect || '/'))
+  } catch (error) {
+    const message = error instanceof Error ? error.message : ''
+    ElMessage.error(message.includes('Invalid username or password') ? '账号或密码错误' : message || '登录失败，请检查账号或密码')
   } finally {
     loading.value = false
   }
@@ -28,7 +31,7 @@ async function submit() {
   <main class="login-page">
     <section class="login-panel">
       <div class="login-title">
-        <h1>HIS + 康养 OA</h1>
+        <h1>和悦医养 OA</h1>
         <p>请先登录后访问 OA 与物资管理</p>
       </div>
       <el-form @submit.prevent="submit">
