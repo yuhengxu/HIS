@@ -42,6 +42,7 @@ public class ProcessInstanceRecord {
     public void moveTo(Long nodeId) { this.currentNodeId = nodeId; }
     public void markApproved() { this.status = InstanceStatus.APPROVED; this.finishedAt = OffsetDateTime.now(); }
     public void markRejected() { this.status = InstanceStatus.REJECTED; this.finishedAt = OffsetDateTime.now(); }
+    public void markCancelled() { this.status = InstanceStatus.CANCELLED; this.finishedAt = OffsetDateTime.now(); }
     public void markPendingConfig() { this.status = InstanceStatus.PENDING_CONFIG; }
     public long getId() { return id(); }
     public long getProcessDefinitionId() { return processDefinitionId(); }

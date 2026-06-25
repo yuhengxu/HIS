@@ -25,7 +25,7 @@
 | `inv_item` | `pk_inv_item` | `uk_inv_item_code` | `idx_inv_item_category_id` |
 | `inv_supplier` | `pk_inv_supplier` | `uk_inv_supplier_code` | `idx_inv_supplier_status` |
 | `inv_warehouse` | `pk_inv_warehouse` | `uk_inv_warehouse_code` | `idx_inv_warehouse_status` |
-| `inv_stock` | `pk_inv_stock` | `uk_inv_stock_warehouse_item` | `idx_inv_stock_item_id` |
+| `inv_stock` | `pk_inv_stock` | `uk_inv_stock_warehouse_item` | `idx_inv_stock_item_id`、`idx_inv_stock_owner_user_id` |
 | `inv_stock_txn` | `pk_inv_stock_txn` | - | `idx_inv_stock_txn_biz_no`、`idx_inv_stock_txn_item_time` |
 | `inv_inbound_order` | `pk_inv_inbound_order` | `uk_inv_inbound_order_no` | `idx_inv_inbound_order_status` |
 | `inv_outbound_order` | `pk_inv_outbound_order` | `uk_inv_outbound_order_no` | `idx_inv_outbound_order_status` |
@@ -61,3 +61,13 @@
 | `inv_outbound_order_line` | `pk_inv_outbound_order_line` | - | `idx_inv_outbound_order_line_order` |
 | `inv_stocktake_order_line` | `pk_inv_stocktake_order_line` | - | `idx_inv_stocktake_order_line_order` |
 | `inv_reimbursement_record` | `pk_inv_reimbursement_record` | - | `idx_inv_reimbursement_record_oa`、`idx_inv_reimbursement_record_inbound` |
+
+## 6. 扩展索引
+
+| 表 | 主键 | 唯一索引 | 普通索引 |
+|---|---|---|---|
+| `file_attachment` | `pk_file_attachment` | - | `idx_file_attachment_biz` |
+| `inv_item_image` | `pk_inv_item_image` | - | `idx_inv_item_image_item` |
+| `oa_instance_attachment` | `pk_oa_instance_attachment` | - | `idx_oa_instance_attachment_instance` |
+| `inv_reimbursement_voucher` | `pk_inv_reimbursement_voucher` | - | `idx_reimbursement_voucher_record` |
+| `oa_form_material_draft` | `pk_oa_form_material_draft` | - | `idx_oa_form_material_draft_instance` |

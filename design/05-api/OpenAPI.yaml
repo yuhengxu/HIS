@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: HIS + 康养服务平台 API
+  title: 和悦医养服务平台 API
   version: 0.2.0
   description: 第一阶段 OA 基座、IAM、物资管理 REST API。
 servers:
@@ -145,7 +145,7 @@ paths:
   /oa/instances/inventory-outbound:
     post:
       operationId: startInventoryOutboundProcess
-      summary: 发起物资出库 OA
+      summary: 发起物品领用
       tags: [OA]
       responses:
         '200': { description: OK }
@@ -163,11 +163,46 @@ paths:
       tags: [OA]
       responses:
         '200': { description: OK }
+  /oa/instances/mine:
+    get:
+      operationId: listMyProcessInstances
+      summary: 工作台本人发起流程
+      description: 登录用户查看自己发起的 OA 流程；AI 不允许调用。
+      tags: [OA]
+      responses:
+        '200': { description: OK }
+  /oa/instances/claimable-materials/search:
+    get:
+      operationId: searchClaimableMaterials
+      summary: 物品领用可选物资
+      description: 按 warehouseId 对应仓库类型过滤可申领物资；AI 不允许调用。
+      tags: [OA]
+      parameters:
+        - name: warehouseId
+          in: query
+          required: true
+          schema: { type: integer, format: int64 }
+        - name: keyword
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
   /oa/tasks/todo:
     get:
       operationId: listTodoTasks
       summary: 我的待办
       tags: [OA]
+      responses:
+        '200': { description: OK }
+  /oa/tasks/{taskId}:
+    get:
+      operationId: getTaskDetail
+      summary: 待办详情
+      description: 当前可处理人查看 OA 申请内容；AI 不允许调用。
+      tags: [OA]
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
       responses:
         '200': { description: OK }
   /oa/tasks/{taskId}/approve:
@@ -192,6 +227,16 @@ paths:
     post:
       operationId: urgeInstance
       summary: 催办流程
+      tags: [OA]
+      parameters:
+        - $ref: '#/components/parameters/InstanceId'
+      responses:
+        '200': { description: OK }
+  /oa/instances/{instanceId}/revoke:
+    post:
+      operationId: revokeInstance
+      summary: 撤销本人发起流程
+      description: 仅发起人可撤销运行中或待配置流程；撤销后待办取消，AI 不允许调用。
       tags: [OA]
       parameters:
         - $ref: '#/components/parameters/InstanceId'
@@ -274,10 +319,27 @@ paths:
                 quantity: { type: number }
       responses:
         '200': { description: OK }
+  /inventory/stocks/adjust:
+    post:
+      operationId: adjustInventoryStock
+      summary: 管理员调整库存
+      description: 仅 SYSTEM_ADMIN 可调用；不经过 OA，必须生成 ADJUST 库存流水；AI 不允许调用。
+      tags: [Inventory]
+      responses:
+        '200': { description: OK }
+  /inventory/stock-summary:
+    get:
+      operationId: listInventoryStockSummary
+      summary: 物资库总库存
+      description: 按仓库 + 物资聚合所有入库人明细库存，不返回 ownerUserId；AI 可只读调用。
+      tags: [Inventory]
+      responses:
+        '200': { description: OK }
   /inventory/stock-transactions:
     get:
       operationId: listStockTransactions
       summary: 库存流水
+      description: 需要 inventory:stock:read；SYSTEM_ADMIN 返回全部流水，其他用户仅返回本人 operatorUserId 流水；AI 只允许只读调用。
       tags: [Inventory]
       responses:
         '200': { description: OK }

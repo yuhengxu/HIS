@@ -94,6 +94,11 @@ body,
   line-height: 1.7;
 }
 
+.workspace {
+  display: grid;
+  gap: 18px;
+}
+
 .permission-list {
   display: flex;
   flex-wrap: wrap;
@@ -200,6 +205,29 @@ body,
 
 .form-control {
   width: 100%;
+}
+
+.task-detail {
+  display: grid;
+  gap: 16px;
+}
+
+.task-detail h2 {
+  margin: 8px 0 0;
+  font-size: 16px;
+}
+
+.detail-pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
 }
 
 .login-page {

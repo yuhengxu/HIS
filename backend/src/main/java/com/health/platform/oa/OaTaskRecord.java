@@ -41,6 +41,7 @@ public class OaTaskRecord {
 
     public void approve(long actorUserId) { this.status = TaskStatus.APPROVED; this.claimedByUserId = actorUserId; this.handledAt = OffsetDateTime.now(); }
     public void reject(long actorUserId) { this.status = TaskStatus.REJECTED; this.claimedByUserId = actorUserId; this.handledAt = OffsetDateTime.now(); }
+    public void cancel(long actorUserId) { this.status = TaskStatus.CANCELLED; this.claimedByUserId = actorUserId; this.handledAt = OffsetDateTime.now(); }
     public void incrementRemindCount() { this.remindCount++; }
     public long getId() { return id(); }
     public long getProcessInstanceId() { return processInstanceId(); }

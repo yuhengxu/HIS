@@ -59,6 +59,8 @@
 
 用途：物资档案。核心字段：`id`、`category_id`、`code`、`name`、`specification`、`unit`、`safety_stock`、`status`、`created_at`、`updated_at`、`deleted_at`。主键 `id` 使用数据库自增 `bigserial`。
 
+新增字段：`material_tag`，取值 `NORMAL` / `SPECIAL`，分别表示普通物资与特殊物资。仅 `SYSTEM_ADMIN` 可查看和修改该标签；`INVENTORY_ADMIN` 只能查看普通物资记录。
+
 ### `inv_supplier`
 
 用途：供应商档案。核心字段：`id`、`code`、`name`、`contact_name`、`contact_phone`、`status`、`created_at`、`updated_at`、`deleted_at`。
@@ -69,11 +71,15 @@
 
 ### `inv_stock`
 
-用途：当前库存余额。核心字段：`id`、`warehouse_id`、`item_id`、`quantity`、`updated_at`。主键 `id` 使用数据库自增 `bigserial`，唯一索引 `uk_inv_stock_warehouse_item` 防止同仓库同物资重复建账。
+用途：当前库存余额。核心字段：`id`、`warehouse_id`、`item_id`、`quantity`、`owner_user_id`、`updated_at`。主键 `id` 使用数据库自增 `bigserial`。`owner_user_id` 表示库存录入人/归属人；首期库存查询按 `owner_user_id` 过滤，仅返回本人入库或本人初始化的库存，`SYSTEM_ADMIN` 例外可查看全部。
+
+物资库总库存不单独建表，首期由 `inv_stock` 按 `warehouse_id` + `item_id` 汇总得到；物资明细库对应 `inv_stock` 明细行。物品领用审批通过时按总库存校验，并按明细行入库顺序扣减。
 
 ### `inv_stock_txn`
 
-用途：库存流水，记录入库、出库、盘点差异。核心字段：`id`、`txn_type`、`biz_no`、`warehouse_id`、`item_id`、`quantity_delta`、`operator_user_id`、`occurred_at`。
+用途：库存流水，记录入库、出库、盘点差异。核心字段：`id`、`txn_type`、`biz_no`、`warehouse_id`、`item_id`、`quantity_delta`、`operator_user_id`、`occurred_at`。`operator_user_id` 表示本次库存变动录入/触发人；流水查询按 `operator_user_id` 隔离，`SYSTEM_ADMIN` 例外可查看全部。
+
+`txn_type=ADJUST` 表示系统管理员不经过 OA 的直接库存调整，必须保留流水和操作审计。
 
 ### `inv_inbound_order`
 
@@ -155,3 +161,33 @@
 | `inv_outbound_order.oa_instance_id` | 出库单关联 OA 实例 |
 | `inv_inbound_order.total_amount` | 入库总金额 |
 | `inv_outbound_order.total_amount` | 出库总金额 |
+| `inv_inbound_order.reimbursement_linked` | 是否已被报销单关联，报销下拉仅显示未关联入库单 |
+
+## 9. IAM / 附件 / OA 物资草稿
+
+依据：`plans/oa20260624-iam-oa-inventory-enhancement.plan.md` §3.3-§3.4。
+
+| 表/字段 | 说明 |
+|---|---|
+| `iam_role.status` / `sort_order` / `is_system` / `deleted_at` | 角色启停、排序、系统内置保护、软删除 |
+| `iam_permission.name` / `description` / `domain` / `resource_type` / `is_system` / `enabled` | 权限点说明与启停 |
+| `iam_role_permission` | 角色权限关系，含唯一约束与审计字段 |
+| `file_attachment` | 通用附件：业务类型、用途、存储路径、哈希、上传人 |
+| `inv_item_image` | 物资图片关联 |
+| `oa_instance_attachment` | OA 实例附件关联 |
+| `inv_reimbursement_voucher` | 报销凭证关联 |
+| `oa_form_material_draft` | OA 表单内新物资草稿 |
+
+## 10. 流程定义、菜单与库存图片（本轮补齐）
+
+依据：`plans/oa20260624-feature-oa-process-menu-image-fix.plan.md` §4。
+
+| 表/字段 | 说明 |
+|---|---|
+| `oa_process_definition.status/version/form_schema/is_builtin` | 流程版本化与发布状态 |
+| `oa_process_node.approve_policy/reject_policy/assignee_mode` | 节点灵活配置 |
+| `sys_menu` | 菜单树：编码、路径、组件、图标、权限点绑定 |
+| `iam_role_menu` | 角色可见菜单 |
+| `iam_user_menu_override` | 用户菜单加授/撤销 |
+| `inv_item_image` | 物资主图/附图关联 |
+| `inv_stock_image` | 库存现场图关联 |

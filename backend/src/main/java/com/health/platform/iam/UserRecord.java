@@ -1,5 +1,6 @@
 package com.health.platform.iam;
 
+import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -12,10 +13,12 @@ public class UserRecord {
     private String username;
     private String displayName;
     private boolean enabled = true;
+    private boolean mustChangePassword;
     private Long reportToUserId;
     private String wecomUserId;
     private String departmentName;
     private String passwordHash;
+    private OffsetDateTime deletedAt;
     private final Set<String> roleCodes = new LinkedHashSet<>();
     private final Map<String, PermissionEffect> permissionOverrides = new LinkedHashMap<>();
 
@@ -29,6 +32,8 @@ public class UserRecord {
     public String username() { return username; }
     public String displayName() { return displayName; }
     public boolean enabled() { return enabled; }
+    public boolean mustChangePassword() { return mustChangePassword; }
+    public OffsetDateTime deletedAt() { return deletedAt; }
     public Long reportToUserId() { return reportToUserId; }
     public String wecomUserId() { return wecomUserId; }
     public String departmentName() { return departmentName; }
@@ -46,11 +51,15 @@ public class UserRecord {
     }
 
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    public void setMustChangePassword(boolean mustChangePassword) { this.mustChangePassword = mustChangePassword; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public void softDelete() { this.deletedAt = OffsetDateTime.now(); }
     public long getId() { return id(); }
     public String getUsername() { return username(); }
     public String getDisplayName() { return displayName(); }
     public boolean isEnabled() { return enabled(); }
+    public boolean isMustChangePassword() { return mustChangePassword(); }
+    public OffsetDateTime getDeletedAt() { return deletedAt(); }
     public Long getReportToUserId() { return reportToUserId(); }
     public String getWecomUserId() { return wecomUserId(); }
     public String getDepartmentName() { return departmentName(); }
