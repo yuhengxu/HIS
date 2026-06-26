@@ -138,3 +138,14 @@ OA 标准闭环为：起草节点发起 -> 一个或多个审批节点审批 -> 
 | `inventory:stock:image:write` | 库存现场图维护 | 否 |
 
 菜单可见公式：`最终可见菜单 = 角色菜单 + 用户菜单加授 - 用户菜单撤销`。菜单只控制前端入口，接口权限仍独立校验。图片上传须业务二次鉴权（角色 + 权限点）。
+
+## 10. 企业微信 H5 OA 权限规则
+
+依据：`plans/wecom-h5-oa-mobile-integration20260626.plan.md` §6、§8。
+
+- 企业微信 OAuth 只负责识别用户身份，不绕过 HIS 权限体系。
+- 移动端请求优先使用 `Authorization: Bearer <mobileToken>` 解析用户；无移动 token 时 PC 端继续兼容 `X-User-Id`。
+- 移动端发起、审批、驳回、撤销、催办仍复用现有权限点：`oa:instance:create`、`oa:task:read`、`oa:task:approve`、`oa:task:urge`。
+- 角色节点通知按角色找所有 enabled 用户发送企业微信消息；审批权限仍由 `canHandle` 与 `oa:task:approve` 控制。
+- 企业微信发送失败、用户未绑定 `wecomUserId` 仅记录消息日志，不改变流程状态。
+- AI 调用方不得调用 `/api/v1/wecom/auth/**`，不得调用任何 OA 写接口或企业微信消息发送能力。

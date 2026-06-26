@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.health.platform.common.ApiResponse;
 import com.health.platform.common.SecurityContextUtil;
+import com.health.platform.wecom.WeComSessionService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,14 +21,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/inventory")
 public class InventoryController {
     private final InventoryStockService inventoryStockService;
+    private final WeComSessionService weComSessionService;
 
-    public InventoryController(InventoryStockService inventoryStockService) {
+    public InventoryController(InventoryStockService inventoryStockService, WeComSessionService weComSessionService) {
         this.inventoryStockService = inventoryStockService;
+        this.weComSessionService = weComSessionService;
     }
 
     @GetMapping("/warehouses")
-    public ApiResponse<List<WarehouseRecord>> warehouses(@RequestHeader("X-User-Id") Long actorUserId) {
-        return ApiResponse.ok(inventoryStockService.warehouses(SecurityContextUtil.requireUserId(actorUserId)));
+    public ApiResponse<List<WarehouseRecord>> warehouses(@RequestHeader(value = "X-User-Id", required = false) Long actorUserId, @RequestHeader(value = "Authorization", required = false) String authorization) {
+        return ApiResponse.ok(inventoryStockService.warehouses(actor(actorUserId, authorization)));
     }
 
     @PostMapping("/warehouses")
@@ -141,8 +144,12 @@ public class InventoryController {
     }
 
     @GetMapping("/inbound-orders/unlinked-for-reimbursement")
-    public ApiResponse<List<Map<String, Object>>> unlinkedInboundOrdersForReimbursement(@RequestHeader("X-User-Id") Long actorUserId) {
-        return ApiResponse.ok(inventoryStockService.unlinkedInboundOrdersForReimbursement(SecurityContextUtil.requireUserId(actorUserId)));
+    public ApiResponse<List<Map<String, Object>>> unlinkedInboundOrdersForReimbursement(@RequestHeader(value = "X-User-Id", required = false) Long actorUserId, @RequestHeader(value = "Authorization", required = false) String authorization) {
+        return ApiResponse.ok(inventoryStockService.unlinkedInboundOrdersForReimbursement(actor(actorUserId, authorization)));
+    }
+
+    private long actor(Long actorUserId, String authorization) {
+        return SecurityContextUtil.requireUserId(actorUserId, authorization, weComSessionService::requireUserId);
     }
 
     @GetMapping("/outbound-orders")

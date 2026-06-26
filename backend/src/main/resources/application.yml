@@ -25,3 +25,11 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+wecom:
+  enabled: ${WECOM_ENABLED:false}
+  corp-id: ${WECOM_CORP_ID:}
+  agent-id: ${WECOM_AGENT_ID:0}
+  secret: ${WECOM_SECRET:}
+  base-url: ${WECOM_BASE_URL:https://qyapi.weixin.qq.com}
+  his-public-base-url: ${HIS_PUBLIC_BASE_URL:}

@@ -5,10 +5,13 @@ export type ApiResponse<T> = {
 }
 
 export const currentUserId = () => localStorage.getItem('his.currentUserId')
+export const mobileToken = () => localStorage.getItem('his.mobileToken')
 export const isLoggedIn = () => Boolean(currentUserId())
+export const isMobileLoggedIn = () => Boolean(mobileToken())
 export const clearSession = () => {
   localStorage.removeItem('his.currentUserId')
   localStorage.removeItem('his.currentUser')
+  localStorage.removeItem('his.mobileToken')
 }
 
 export async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -16,7 +19,8 @@ export async function request<T>(path: string, options: RequestInit = {}): Promi
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...(currentUserId() ? { 'X-User-Id': currentUserId() as string } : {}),
+      ...(mobileToken() ? { Authorization: `Bearer ${mobileToken()}` } : {}),
+      ...(!mobileToken() && currentUserId() ? { 'X-User-Id': currentUserId() as string } : {}),
       ...(options.headers ?? {}),
     },
   })

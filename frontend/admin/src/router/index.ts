@@ -19,7 +19,18 @@ import StockTxnList from '../views/inventory/StockTxnList.vue'
 import InboundOrderList from '../views/inventory/InboundOrderList.vue'
 import OutboundOrderList from '../views/inventory/OutboundOrderList.vue'
 import Login from '../views/Login.vue'
-import { isLoggedIn } from '../api/http'
+import MobileLayout from '../mobile/MobileLayout.vue'
+import MobileOaHome from '../mobile/pages/MobileOaHome.vue'
+import MobileOaLogin from '../mobile/pages/MobileOaLogin.vue'
+import MobileStartCenter from '../mobile/pages/MobileStartCenter.vue'
+import MobileInboundApply from '../mobile/pages/MobileInboundApply.vue'
+import MobileOutboundApply from '../mobile/pages/MobileOutboundApply.vue'
+import MobileReimbursementApply from '../mobile/pages/MobileReimbursementApply.vue'
+import MobileTodoTasks from '../mobile/pages/MobileTodoTasks.vue'
+import MobileHandledTasks from '../mobile/pages/MobileHandledTasks.vue'
+import MobileStartedInstances from '../mobile/pages/MobileStartedInstances.vue'
+import MobileTaskDetail from '../mobile/pages/MobileTaskDetail.vue'
+import { isLoggedIn, isMobileLoggedIn } from '../api/http'
 
 function currentRoles(): string[] {
   const raw = localStorage.getItem('his.currentUser')
@@ -40,6 +51,23 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/login', component: Login, meta: { public: true } },
+    { path: '/m/oa/login', component: MobileOaLogin, meta: { public: true, mobile: true } },
+    {
+      path: '/m/oa',
+      component: MobileLayout,
+      meta: { mobile: true },
+      children: [
+        { path: '', component: MobileOaHome },
+        { path: 'start', component: MobileStartCenter },
+        { path: 'start/inbound', component: MobileInboundApply },
+        { path: 'start/outbound', component: MobileOutboundApply },
+        { path: 'start/reimbursement', component: MobileReimbursementApply },
+        { path: 'todo', component: MobileTodoTasks },
+        { path: 'handled', component: MobileHandledTasks },
+        { path: 'mine', component: MobileStartedInstances },
+        { path: 'tasks/:taskId', component: MobileTaskDetail },
+      ],
+    },
     { path: '/', component: Dashboard },
     { path: '/iam/users', component: UserList, meta: { roles: ['SYSTEM_ADMIN'] } },
     { path: '/iam/roles', component: RoleList, meta: { roles: ['SYSTEM_ADMIN'] } },
@@ -63,7 +91,11 @@ const router = createRouter({
 })
 
 router.beforeEach((to) => {
+  if (to.meta.mobile && to.path !== '/m/oa/login' && !isMobileLoggedIn()) {
+    return { path: '/m/oa/login', query: { redirect: to.fullPath } }
+  }
   if (!to.meta.public && !isLoggedIn()) {
+    if (to.meta.mobile) return true
     return { path: '/login', query: { redirect: to.fullPath } }
   }
   if (to.path === '/login' && isLoggedIn()) {

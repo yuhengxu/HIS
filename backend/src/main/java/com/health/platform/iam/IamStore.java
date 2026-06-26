@@ -43,6 +43,15 @@ public class IamStore {
             .filter(u -> u.deletedAt() == null && u.username().equalsIgnoreCase(username))
             .findFirst();
     }
+    public Optional<UserRecord> findUserByWecomUserId(String wecomUserId) {
+        if (wecomUserId == null || wecomUserId.isBlank()) {
+            return Optional.empty();
+        }
+        return users.values().stream()
+            .filter(u -> u.deletedAt() == null && u.enabled())
+            .filter(u -> wecomUserId.equalsIgnoreCase(u.wecomUserId()))
+            .findFirst();
+    }
     public Optional<RoleRecord> findRole(String code) {
         return Optional.ofNullable(roles.get(code)).filter(r -> r.deletedAt() == null);
     }
@@ -54,6 +63,13 @@ public class IamStore {
         return users.values().stream()
             .filter(u -> u.deletedAt() == null && u.roleCodes().contains(roleCode))
             .count();
+    }
+
+    public List<UserRecord> usersWithRole(String roleCode) {
+        return users.values().stream()
+            .filter(u -> u.deletedAt() == null && u.enabled())
+            .filter(u -> u.roleCodes().contains(roleCode))
+            .toList();
     }
 
     public UserRecord createUser(String username, String displayName, Long reportToUserId, String wecomUserId, String departmentName, Set<String> roleCodes) {

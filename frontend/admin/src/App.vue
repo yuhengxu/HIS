@@ -9,6 +9,7 @@ import SidebarMenuNode from './components/SidebarMenuNode.vue'
 const route = useRoute()
 const router = useRouter()
 const isLoginPage = computed(() => route.path === '/login')
+const isMobilePage = computed(() => route.path.startsWith('/m/'))
 
 type SessionUser = { displayName: string; username: string; roleCodes?: string[]; permissions?: string[] }
 
@@ -50,7 +51,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <router-view v-if="isLoginPage" />
+  <router-view v-if="isLoginPage || isMobilePage" />
   <el-container v-else class="shell">
     <el-aside width="232px" class="sidebar">
       <div class="brand">和悦医养</div>

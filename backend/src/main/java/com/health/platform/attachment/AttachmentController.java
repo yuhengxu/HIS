@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.health.platform.common.ApiResponse;
 import com.health.platform.common.SecurityContextUtil;
+import com.health.platform.wecom.WeComSessionService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,24 +23,26 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/attachments")
 public class AttachmentController {
     private final AttachmentService attachmentService;
+    private final WeComSessionService weComSessionService;
 
-    public AttachmentController(AttachmentService attachmentService) {
+    public AttachmentController(AttachmentService attachmentService, WeComSessionService weComSessionService) {
         this.attachmentService = attachmentService;
+        this.weComSessionService = weComSessionService;
     }
 
     @PostMapping
-    public ApiResponse<FileAttachmentRecord> upload(@RequestHeader("X-User-Id") Long actorUserId, @RequestBody AttachmentService.UploadRequest request) {
-        return ApiResponse.ok(attachmentService.upload(SecurityContextUtil.requireUserId(actorUserId), request));
+    public ApiResponse<FileAttachmentRecord> upload(@RequestHeader(value = "X-User-Id", required = false) Long actorUserId, @RequestHeader(value = "Authorization", required = false) String authorization, @RequestBody AttachmentService.UploadRequest request) {
+        return ApiResponse.ok(attachmentService.upload(actor(actorUserId, authorization), request));
     }
 
     @GetMapping("/{attachmentId}")
-    public ApiResponse<FileAttachmentRecord> get(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long attachmentId) {
-        return ApiResponse.ok(attachmentService.get(SecurityContextUtil.requireUserId(actorUserId), attachmentId));
+    public ApiResponse<FileAttachmentRecord> get(@RequestHeader(value = "X-User-Id", required = false) Long actorUserId, @RequestHeader(value = "Authorization", required = false) String authorization, @PathVariable long attachmentId) {
+        return ApiResponse.ok(attachmentService.get(actor(actorUserId, authorization), attachmentId));
     }
 
     @GetMapping("/{attachmentId}/content")
-    public ResponseEntity<byte[]> content(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long attachmentId) {
-        byte[] content = attachmentService.content(SecurityContextUtil.requireUserId(actorUserId), attachmentId);
+    public ResponseEntity<byte[]> content(@RequestHeader(value = "X-User-Id", required = false) Long actorUserId, @RequestHeader(value = "Authorization", required = false) String authorization, @PathVariable long attachmentId) {
+        byte[] content = attachmentService.content(actor(actorUserId, authorization), attachmentId);
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
             .contentType(MediaType.APPLICATION_OCTET_STREAM)
@@ -47,24 +50,29 @@ public class AttachmentController {
     }
 
     @PostMapping("/{attachmentId}/bind")
-    public ApiResponse<FileAttachmentRecord> bind(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long attachmentId, @RequestBody Map<String, Object> request) {
+    public ApiResponse<FileAttachmentRecord> bind(@RequestHeader(value = "X-User-Id", required = false) Long actorUserId, @RequestHeader(value = "Authorization", required = false) String authorization, @PathVariable long attachmentId, @RequestBody Map<String, Object> request) {
         return ApiResponse.ok(attachmentService.bind(
-            SecurityContextUtil.requireUserId(actorUserId),
+            actor(actorUserId, authorization),
             attachmentId,
             String.valueOf(request.get("bizType")),
             Long.parseLong(String.valueOf(request.get("bizId")))));
     }
 
     @DeleteMapping("/{attachmentId}")
-    public ApiResponse<Void> delete(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long attachmentId) {
-        attachmentService.delete(SecurityContextUtil.requireUserId(actorUserId), attachmentId);
+    public ApiResponse<Void> delete(@RequestHeader(value = "X-User-Id", required = false) Long actorUserId, @RequestHeader(value = "Authorization", required = false) String authorization, @PathVariable long attachmentId) {
+        attachmentService.delete(actor(actorUserId, authorization), attachmentId);
         return ApiResponse.ok(null);
     }
 
     @GetMapping
-    public ApiResponse<List<FileAttachmentRecord>> list(@RequestHeader("X-User-Id") Long actorUserId,
+    public ApiResponse<List<FileAttachmentRecord>> list(@RequestHeader(value = "X-User-Id", required = false) Long actorUserId,
+                                                          @RequestHeader(value = "Authorization", required = false) String authorization,
                                                           @RequestParam String bizType,
                                                           @RequestParam long bizId) {
-        return ApiResponse.ok(attachmentService.listByBiz(SecurityContextUtil.requireUserId(actorUserId), bizType, bizId));
+        return ApiResponse.ok(attachmentService.listByBiz(actor(actorUserId, authorization), bizType, bizId));
+    }
+
+    private long actor(Long actorUserId, String authorization) {
+        return SecurityContextUtil.requireUserId(actorUserId, authorization, weComSessionService::requireUserId);
     }
 }

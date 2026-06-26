@@ -401,6 +401,38 @@ paths:
       tags: [Inventory]
       responses:
         '200': { description: OK }
+  /wecom/auth/url:
+    get:
+      operationId: getWeComAuthUrl
+      summary: 企业微信 OAuth 授权地址
+      description: 匿名调用；返回企业微信网页授权地址或本地回调地址；AI 不允许调用。
+      tags: [WeCom]
+      responses:
+        '200': { description: OK }
+  /wecom/auth/login:
+    post:
+      operationId: loginByWeComOAuthCode
+      summary: 企业微信 OAuth 登录
+      description: 使用企业微信 code 换取 UserId，并映射 HIS 用户签发 mobileToken；AI 不允许调用。
+      tags: [WeCom]
+      responses:
+        '200': { description: OK }
+  /wecom/auth/me:
+    get:
+      operationId: getWeComCurrentUser
+      summary: 当前移动端用户
+      description: 需要 Authorization Bearer mobileToken；AI 不允许调用。
+      tags: [WeCom]
+      responses:
+        '200': { description: OK }
+  /wecom/auth/logout:
+    post:
+      operationId: logoutWeComMobile
+      summary: 退出企业微信移动端登录
+      description: 清理移动端 token；AI 不允许调用。
+      tags: [WeCom]
+      responses:
+        '200': { description: OK }
 components:
   parameters:
     UserId:

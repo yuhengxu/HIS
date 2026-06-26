@@ -1,0 +1,21 @@
+.mobile-shell { min-height: 100vh; background: #f4f7fb; color: #111827; padding-bottom: 76px; }
+.mobile-topbar { position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #ffffff; border-bottom: 1px solid #e5e7eb; }
+.mobile-title { font-size: 18px; font-weight: 700; }
+.mobile-user { font-size: 13px; color: #64748b; }
+.mobile-main { padding: 14px; }
+.mobile-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(15, 23, 42, .04); }
+.mobile-card-title { font-weight: 700; margin-bottom: 8px; }
+.mobile-muted { color: #64748b; font-size: 13px; }
+.mobile-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.mobile-action { min-height: 72px; display: flex; align-items: center; justify-content: center; text-align: center; background: #eef6ff; color: #075985; border-radius: 8px; font-weight: 700; text-decoration: none; }
+.mobile-list-item { display: block; color: inherit; text-decoration: none; }
+.mobile-bottom { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: grid; grid-template-columns: repeat(4, 1fr); background: #ffffff; border-top: 1px solid #e5e7eb; }
+.mobile-bottom a { padding: 9px 4px; text-align: center; color: #64748b; text-decoration: none; font-size: 12px; }
+.mobile-bottom a.router-link-active { color: #0f766e; font-weight: 700; }
+.mobile-form .el-form-item { margin-bottom: 16px; }
+.mobile-form .el-select, .mobile-form .el-input, .mobile-form .el-input-number { width: 100%; }
+.mobile-primary { width: 100%; min-height: 44px; }
+.mobile-danger { width: 100%; min-height: 44px; margin-top: 8px; }
+.mobile-fixed-actions { position: sticky; bottom: 76px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; display: grid; gap: 8px; }
+.mobile-status { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #ecfdf5; color: #047857; font-size: 12px; }
+@media (max-width: 360px) { .mobile-main { padding: 10px; } .mobile-grid { grid-template-columns: 1fr; } }

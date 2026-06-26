@@ -125,3 +125,16 @@
 | `me.menus` | GET | `/api/v1/me/menus` | 登录用户 |
 | `inventory.item.images` | GET/POST | `/api/v1/inventory/items/{id}/images` | 读/写分离 |
 | `inventory.stock.images` | GET/POST | `/api/v1/inventory/stocks/{id}/images` | 读/写分离 |
+
+## 8. 企业微信 H5 OA API
+
+依据：`plans/wecom-h5-oa-mobile-integration20260626.plan.md` §8、§9。
+
+| API | 方法 | 路径 | 权限 | AI 可调用 |
+|---|---|---|---|---|
+| `wecom.auth.url` | GET | `/api/v1/wecom/auth/url` | 匿名 | 否 |
+| `wecom.auth.login` | POST | `/api/v1/wecom/auth/login` | 企业微信 OAuth code + `wecomUserId` 绑定 | 否 |
+| `wecom.auth.me` | GET | `/api/v1/wecom/auth/me` | `Authorization: Bearer <mobileToken>` | 否 |
+| `wecom.auth.logout` | POST | `/api/v1/wecom/auth/logout` | `Authorization: Bearer <mobileToken>` | 否 |
+
+说明：移动端 `/m/oa` 复用现有 OA 和库存接口；移动端 token 只替代请求身份识别方式，不改变业务权限点。企业微信消息发送由后端流程流转触发，不对 AI 或前端开放直接发送接口。

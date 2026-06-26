@@ -14,7 +14,12 @@ import com.health.platform.iam.PermissionService;
 import com.health.platform.iam.UserService;
 import com.health.platform.inventory.InventoryStockService;
 import com.health.platform.inventory.InventoryStore;
+import com.health.platform.notification.OaNotificationMessageBuilder;
+import com.health.platform.notification.OaNotificationRecipientResolver;
 import com.health.platform.notification.OaNotificationService;
+import com.health.platform.wecom.WeComMessageClient;
+import com.health.platform.wecom.WeComProperties;
+import com.health.platform.wecom.WeComTokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,13 +33,18 @@ class ReimbursementValidationTest {
         AuditService auditService = new AuditService();
         UserService userService = new UserService(iamStore, permissionService, auditService);
         InventoryStockService inventoryStockService = new InventoryStockService(new InventoryStore(), permissionService, auditService, iamStore);
+        OaStore oaStore = new OaStore();
+        WeComProperties weComProperties = new WeComProperties();
         service = new ProcessRuntimeService(
-            new OaStore(),
+            oaStore,
             iamStore,
             permissionService,
             inventoryStockService,
             new SupervisorResolver(userService),
-            new OaNotificationService(),
+            new OaNotificationService(
+                new OaNotificationRecipientResolver(oaStore, iamStore),
+                new OaNotificationMessageBuilder(oaStore),
+                new WeComMessageClient(weComProperties, new WeComTokenService(weComProperties))),
             auditService,
             List.of(inventoryStockService));
     }

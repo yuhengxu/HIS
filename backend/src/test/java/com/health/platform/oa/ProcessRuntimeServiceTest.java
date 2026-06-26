@@ -14,7 +14,12 @@ import com.health.platform.iam.PermissionService;
 import com.health.platform.iam.UserService;
 import com.health.platform.inventory.InventoryStockService;
 import com.health.platform.inventory.InventoryStore;
+import com.health.platform.notification.OaNotificationMessageBuilder;
+import com.health.platform.notification.OaNotificationRecipientResolver;
 import com.health.platform.notification.OaNotificationService;
+import com.health.platform.wecom.WeComMessageClient;
+import com.health.platform.wecom.WeComProperties;
+import com.health.platform.wecom.WeComTokenService;
 import org.junit.jupiter.api.Test;
 
 class ProcessRuntimeServiceTest {
@@ -182,6 +187,22 @@ class ProcessRuntimeServiceTest {
         assertTrue(fixture.notificationService.logs().stream().anyMatch(log -> "OA_TASK_MANUAL_URGE".equals(log.messageType())));
     }
 
+    @Test
+    void roleTaskCreatesNotificationLogForRoleUser() {
+        Fixture fixture = new Fixture();
+        fixture.runtime.start(3, "inbound_material", "inventory_inbound", "入库", Map.of(
+            "warehouseId", 1,
+            "itemId", 1,
+            "quantity", 2,
+            "unitPrice", "0.60"
+        ));
+        OaTaskRecord managerTask = fixture.runtime.todo(2).get(0);
+        fixture.runtime.approve(2, managerTask.id(), "同意");
+
+        assertTrue(fixture.notificationService.logs().stream()
+            .anyMatch(log -> log.targetUserId() != null && log.targetUserId() == 4 && "OA_TASK_ARRIVED".equals(log.messageType())));
+    }
+
     static class Fixture {
         final IamStore iamStore = new IamStore();
         final PermissionService permissionService = new PermissionService(iamStore);
@@ -189,7 +210,11 @@ class ProcessRuntimeServiceTest {
         final UserService userService = new UserService(iamStore, permissionService, auditService);
         final SupervisorResolver supervisorResolver = new SupervisorResolver(userService);
         final OaStore oaStore = new OaStore();
-        final OaNotificationService notificationService = new OaNotificationService();
+        final WeComProperties weComProperties = new WeComProperties();
+        final OaNotificationService notificationService = new OaNotificationService(
+            new OaNotificationRecipientResolver(oaStore, iamStore),
+            new OaNotificationMessageBuilder(oaStore),
+            new WeComMessageClient(weComProperties, new WeComTokenService(weComProperties)));
         final InventoryStore inventoryStore = new InventoryStore();
         final InventoryStockService inventoryService = new InventoryStockService(inventoryStore, permissionService, auditService, iamStore);
         final ProcessRuntimeService runtime = new ProcessRuntimeService(oaStore, iamStore, permissionService, inventoryService, supervisorResolver, notificationService, auditService, List.of(inventoryService));

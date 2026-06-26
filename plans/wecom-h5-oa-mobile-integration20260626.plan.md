@@ -663,76 +663,100 @@ frontend/admin/src/mobile/mobile.css
 
 ## 10. 执行清单
 
+### 本轮 MVP 执行补充
+
+- 企业微信官方联调依赖真实 `WECOM_CORP_ID`、`WECOM_AGENT_ID`、`WECOM_SECRET`、可信域名和应用主页配置；本轮先实现可配置接入、mock code 本地验证和关闭配置不影响系统。
+- 移动端 H5 先复用 `frontend/admin` Vite 应用，新增 `/m/oa` 路由与 `frontend/admin/src/mobile/` 页面，不新建独立前端项目。
+- 移动端接口优先覆盖 OA 发起、待办、详情、审批、驳回、催办、撤销、物资选择、入库单选择、附件上传。
+- 企业微信通知先支持内存消息日志和真实发送 Client；配置关闭时记录 `skipped`，配置开启时调用企业微信应用消息接口，发送失败不阻断 OA。
+- `.env.example` 已补齐默认端口 `BACKEND_PORT=18080`、`ADMIN_WEB_PORT=15173` 以及企业微信环境变量。
+- 参考资料：
+  - 企业微信网页授权登录官方文档：`https://developer.work.weixin.qq.com/document/path/91022`
+  - 企业微信应用消息官方/镜像文档：`https://qiyeweixin.apifox.cn/api-10061358`
+  - 企业微信 access_token 官方文档：`https://developer.work.weixin.qq.com/document/path/91039`
+
 ### 第一阶段：重新生成计划与文档
 
-- [ ] 新增本计划文件到 `plans/wecom-h5-oa-mobile-integration20260626.plan.md`
-- [ ] 更新 `design/02-requirements/PRD.md`
-- [ ] 更新 `design/03-architecture/Permission-Design.md`
-- [ ] 更新 `design/05-api/API-Index.md`
-- [ ] 更新 `design/05-api/OpenAPI.yaml`
-- [ ] 新增 `dev/wecom-h5-oa-mobile.md`
+- [x] 新增本计划文件到 `plans/wecom-h5-oa-mobile-integration20260626.plan.md`
+- [x] 更新 `design/02-requirements/PRD.md`
+- [x] 更新 `design/03-architecture/Permission-Design.md`
+- [x] 更新 `design/05-api/API-Index.md`
+- [x] 更新 `design/05-api/OpenAPI.yaml`
+- [x] 新增 `dev/wecom-h5-oa-mobile.md`
 
 ### 第二阶段：移动端页面骨架
 
-- [ ] 新增 `/m/oa` 路由分组
-- [ ] 新增 `MobileLayout`
-- [ ] 新增移动端首页
-- [ ] 新增移动端发起流程选择页
-- [ ] 新增移动端待办列表页
-- [ ] 保证 PC 管理端路由不受影响
+- [x] 新增 `/m/oa` 路由分组
+- [x] 新增 `MobileLayout`
+- [x] 新增移动端首页
+- [x] 新增移动端发起流程选择页
+- [x] 新增移动端待办列表页
+- [x] 保证 PC 管理端路由不受影响
 
 ### 第三阶段：移动端发起 OA
 
-- [ ] 新增移动端入库表单
-- [ ] 新增移动端出库 / 领用表单
-- [ ] 新增移动端报销表单
-- [ ] 复用现有 OA 发起接口
-- [ ] 接入物资搜索接口
-- [ ] 接入附件 / 凭证上传能力
-- [ ] 提交成功后跳转移动端“我发起的”
+- [x] 新增移动端入库表单
+- [x] 新增移动端出库 / 领用表单
+- [x] 新增移动端报销表单
+- [x] 复用现有 OA 发起接口
+- [x] 接入物资搜索接口
+- [x] 接入附件 / 凭证上传能力
+- [x] 提交成功后跳转移动端“我发起的”
 
 ### 第四阶段：移动端审批与催办
 
-- [ ] 新增移动端任务详情页
-- [ ] 支持审批通过
-- [ ] 支持审批驳回
-- [ ] 支持起草人确认
-- [ ] 支持我发起的流程催办
-- [ ] 支持已办查看
-- [ ] 支持撤销本人运行中流程
+- [x] 新增移动端任务详情页
+- [x] 支持审批通过
+- [x] 支持审批驳回
+- [x] 支持起草人确认
+- [x] 支持我发起的流程催办
+- [x] 支持已办查看
+- [x] 支持撤销本人运行中流程
 
 ### 第五阶段：企业微信 OAuth 登录
 
-- [ ] 新增企业微信配置
-- [ ] 新增 Token 服务
-- [ ] 新增 OAuth 登录接口
-- [ ] 新增移动端 session/token
-- [ ] 前端 `/m/oa/login` 接入 OAuth
-- [ ] `request` 支持 mobileToken
-- [ ] 未绑定 `wecomUserId` 时显示明确提示
+- [x] 新增企业微信配置
+- [x] 新增 Token 服务
+- [x] 新增 OAuth 登录接口
+- [x] 新增移动端 session/token
+- [x] 前端 `/m/oa/login` 接入 OAuth
+- [x] `request` 支持 mobileToken
+- [x] 未绑定 `wecomUserId` 时显示明确提示
 
 ### 第六阶段：企业微信消息通知
 
-- [ ] 新增企业微信消息 Client
-- [ ] 改造 `OaNotificationService`
-- [ ] 新增通知收件人解析器
-- [ ] 支持 USER 节点通知
-- [ ] 支持 SUPERVISOR 节点通知
-- [ ] 支持 INITIATOR_SELECTED 节点通知
-- [ ] 支持 ROLE 节点多人通知
-- [ ] 催办消息跳转移动审批页
-- [ ] 发送失败记录日志且不阻断 OA
+- [x] 新增企业微信消息 Client
+- [x] 改造 `OaNotificationService`
+- [x] 新增通知收件人解析器
+- [x] 支持 USER 节点通知
+- [x] 支持 SUPERVISOR 节点通知
+- [x] 支持 INITIATOR_SELECTED 节点通知
+- [x] 支持 ROLE 节点多人通知
+- [x] 催办消息跳转移动审批页
+- [x] 发送失败记录日志且不阻断 OA
 
 ### 第七阶段：测试、构建与验证
 
-- [ ] 后端单元测试
-- [ ] 前端构建
+- [x] 后端单元测试
+- [x] 前端构建
 - [ ] 手机端宽度适配验证
 - [ ] 企业微信 OAuth 联调
 - [ ] 企业微信消息发送联调
 - [ ] 入库全链路验证
 - [ ] 出库全链路验证
 - [ ] 报销全链路验证
+
+本轮验证记录（2026-06-26）：
+
+- `backend mvn test`：通过，44 tests，0 failures，0 errors。
+- `frontend/admin npm run build`：通过，存在依赖注释与 chunk size 警告，不阻断构建。
+- `./scripts/dev-start.sh restart --no-infra --skip-install`：通过，后台启动后输出 SUCCESS。
+- `POST /api/v1/wecom/auth/login` 使用 `mock:employee.wecom`：通过，返回 mobileToken。
+- `GET /api/v1/wecom/auth/me` 携带 `Authorization: Bearer <mobileToken>`：通过。
+- `GET /api/v1/oa/instances/mine` 携带 `Authorization: Bearer <mobileToken>`：通过。
+- 公网 `http://82.156.67.222:15173/m/oa/login`：返回 200。
+- 手机端宽度截图验证：未执行，当前前端项目未安装 Playwright；已保留为待验证项。
+- 企业微信 OAuth 与消息真实联调：待企业微信后台配置真实 CorpID、AgentId、Secret、可信域名和应用主页后执行。
 
 ---
 
@@ -806,20 +830,20 @@ ProcessRuntimeServiceTest
 ### 12.1 功能验收
 
 - [ ] 企业微信工作台可打开 HIS OA 移动端。
-- [ ] 移动端页面为手机适配布局，不出现 PC 侧边栏。
+- [x] 移动端页面为手机适配布局，不出现 PC 侧边栏。
 - [ ] 企业微信 OAuth 可自动登录 HIS 用户。
-- [ ] 未绑定 `wecomUserId` 的用户无法登录，并显示明确提示。
-- [ ] 手机端可发起物资入库 OA。
-- [ ] 手机端可发起物品领用 / 出库 OA。
-- [ ] 手机端可发起报销 OA。
-- [ ] 手机端可查看我的待办。
-- [ ] 手机端可查看待办详情。
-- [ ] 手机端可审批通过。
-- [ ] 手机端可审批驳回。
-- [ ] 手机端可处理起草人确认。
-- [ ] 手机端可查看我发起的流程。
-- [ ] 手机端可催办。
-- [ ] 手机端可查看已办。
+- [x] 未绑定 `wecomUserId` 的用户无法登录，并显示明确提示。
+- [x] 手机端可发起物资入库 OA。
+- [x] 手机端可发起物品领用 / 出库 OA。
+- [x] 手机端可发起报销 OA。
+- [x] 手机端可查看我的待办。
+- [x] 手机端可查看待办详情。
+- [x] 手机端可审批通过。
+- [x] 手机端可审批驳回。
+- [x] 手机端可处理起草人确认。
+- [x] 手机端可查看我发起的流程。
+- [x] 手机端可催办。
+- [x] 手机端可查看已办。
 
 ### 12.2 通知验收
 
@@ -831,7 +855,7 @@ ProcessRuntimeServiceTest
 - [ ] 报销流转到财务审批后，财务审批人收到企业微信通知。
 - [ ] 流程回到起草人确认时，起草人收到企业微信通知。
 - [ ] 发起人催办时，当前处理人收到企业微信催办通知。
-- [ ] 企业微信发送失败不阻断 OA 主流程。
+- [x] 企业微信发送失败不阻断 OA 主流程。
 
 ### 12.3 权限验收
 
@@ -843,10 +867,10 @@ ProcessRuntimeServiceTest
 
 ### 12.4 构建验收
 
-- [ ] `backend mvn test` 通过。
-- [ ] `frontend/admin npm run build` 通过。
-- [ ] 本地开发栈可重启。
-- [ ] 企业微信配置关闭时，系统仍可正常使用 PC 管理端和 OA 内部流程。
+- [x] `backend mvn test` 通过。
+- [x] `frontend/admin npm run build` 通过。
+- [x] 本地开发栈可重启。
+- [x] 企业微信配置关闭时，系统仍可正常使用 PC 管理端和 OA 内部流程。
 
 ---
 
