@@ -78,6 +78,31 @@ class InventoryStockServiceTest {
     }
 
     @Test
+    void itemCanBeUpdatedWithoutChangingIdAndDeletedWhenUnreferenced() {
+        IamStore iamStore = new IamStore();
+        InventoryStore store = new InventoryStore();
+        InventoryStockService service = new InventoryStockService(store, new PermissionService(iamStore), new AuditService(), iamStore);
+        ItemRecord item = service.createItem(1, new InventoryStockService.ItemRequest("GLOVE", "手套", "medical", "盒", new BigDecimal("12.50")));
+
+        ItemRecord updated = service.updateItem(1, item.id(), new InventoryStockService.ItemRequest("GLOVE-2", "检查手套", "medical", "包", new BigDecimal("15.00")));
+
+        assertEquals(item.id(), updated.id());
+        assertEquals("GLOVE-2", updated.code());
+        assertEquals("检查手套", updated.name());
+        service.deleteItem(1, item.id());
+        assertThrows(RuntimeException.class, () -> service.getItem(1, item.id()));
+    }
+
+    @Test
+    void itemWithStockCannotBeDeleted() {
+        IamStore iamStore = new IamStore();
+        InventoryStore store = new InventoryStore();
+        InventoryStockService service = new InventoryStockService(store, new PermissionService(iamStore), new AuditService(), iamStore);
+
+        assertThrows(RuntimeException.class, () -> service.deleteItem(1, 1));
+    }
+
+    @Test
     void systemAdminAdjustsStockAndCreatesTransaction() {
         IamStore iamStore = new IamStore();
         InventoryStore store = new InventoryStore();

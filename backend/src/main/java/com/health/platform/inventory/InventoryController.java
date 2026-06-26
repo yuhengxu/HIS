@@ -62,6 +62,12 @@ public class InventoryController {
         return ApiResponse.ok(inventoryStockService.toItemView(actor, inventoryStockService.updateItem(actor, itemId, request)));
     }
 
+    @DeleteMapping("/items/{itemId}")
+    public ApiResponse<Void> deleteItem(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long itemId) {
+        inventoryStockService.deleteItem(SecurityContextUtil.requireUserId(actorUserId), itemId);
+        return ApiResponse.ok(null);
+    }
+
     @GetMapping("/items/{itemId}/images")
     public ApiResponse<List<ItemImageRecord>> listItemImages(@RequestHeader("X-User-Id") Long actorUserId, @PathVariable long itemId) {
         return ApiResponse.ok(inventoryStockService.listItemImages(SecurityContextUtil.requireUserId(actorUserId), itemId));

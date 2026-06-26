@@ -121,6 +121,26 @@ public class InventoryStore {
             .orElse(null);
     }
 
+    public void deleteItem(long itemId) {
+        findItem(itemId);
+        if (itemHasBusinessReferences(itemId)) {
+            throw new IllegalStateException("Item has stock or transaction references");
+        }
+        items.remove(itemId);
+        itemImages.values().stream()
+            .filter(image -> image.itemId() == itemId)
+            .forEach(ItemImageRecord::softDelete);
+    }
+
+    private boolean itemHasBusinessReferences(long itemId) {
+        boolean hasStockBalance = stocks.values().stream()
+            .anyMatch(stock -> stock.itemId() == itemId && stock.quantity().compareTo(BigDecimal.ZERO) != 0);
+        boolean hasTransaction = transactions.stream().anyMatch(txn -> txn.itemId() == itemId);
+        boolean hasInboundOrder = inboundOrders.stream().anyMatch(order -> itemId == longValue(order.get("itemId")));
+        boolean hasOutboundOrder = outboundOrders.stream().anyMatch(order -> itemId == longValue(order.get("itemId")));
+        return hasStockBalance || hasTransaction || hasInboundOrder || hasOutboundOrder;
+    }
+
     public void addItemImage(long itemId, long attachmentId, boolean primary) {
         ItemRecord item = findItem(itemId);
         String usageType = primary ? "main_image" : "gallery";

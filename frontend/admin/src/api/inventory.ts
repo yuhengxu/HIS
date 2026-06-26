@@ -64,6 +64,7 @@ export const inventoryApi = {
     request<Item>('/api/v1/inventory/items', { method: 'POST', body: JSON.stringify(body) }),
   updateItem: (id: number, body: { code?: string; name?: string; itemType?: string; unit?: string; latestPrice?: number; materialTag?: string }) =>
     request<Item>(`/api/v1/inventory/items/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  deleteItem: (id: number) => request<void>(`/api/v1/inventory/items/${id}`, { method: 'DELETE' }),
   itemImages: (itemId: number) => request<ItemImage[]>(`/api/v1/inventory/items/${itemId}/images`),
   addItemImage: (itemId: number, body: { attachmentId: number; primary: boolean }) =>
     request<Item>(`/api/v1/inventory/items/${itemId}/images`, { method: 'POST', body: JSON.stringify(body) }),

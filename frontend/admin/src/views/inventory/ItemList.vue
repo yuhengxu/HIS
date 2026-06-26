@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { attachmentApi } from '../../api/attachment'
 import { inventoryApi, type Item, type ItemImage } from '../../api/inventory'
 
@@ -12,7 +12,8 @@ const imageDialogVisible = ref(false)
 const currentItem = ref<Item | null>(null)
 const itemImages = ref<ItemImage[]>([])
 const uploading = ref(false)
-const form = reactive({ code: '', name: '', itemType: 'non_medical', unit: '', latestPrice: 0, materialTag: 'NORMAL' })
+const formMode = ref<'create' | 'edit'>('create')
+const form = reactive({ id: undefined as number | undefined, code: '', name: '', itemType: 'non_medical', unit: '', latestPrice: 0, materialTag: 'NORMAL' })
 const tagForm = reactive({ materialTag: 'NORMAL' })
 
 const canWrite = computed(() => {
@@ -27,6 +28,7 @@ const canManageTag = computed(() => {
   const roles = (JSON.parse(raw) as { roleCodes?: string[] }).roleCodes ?? []
   return roles.includes('SYSTEM_ADMIN')
 })
+const dialogTitle = computed(() => formMode.value === 'edit' ? '编辑物资档案' : '新增物资档案')
 
 async function load() {
   loading.value = true
@@ -45,8 +47,27 @@ function itemTypeText(type: string) {
   return map[type] ?? type
 }
 
+function resetForm() {
+  Object.assign(form, { id: undefined, code: '', name: '', itemType: 'non_medical', unit: '', latestPrice: 0, materialTag: 'NORMAL' })
+}
+
 function openCreate() {
-  Object.assign(form, { code: '', name: '', itemType: 'non_medical', unit: '', latestPrice: 0, materialTag: 'NORMAL' })
+  formMode.value = 'create'
+  resetForm()
+  dialogVisible.value = true
+}
+
+function openEdit(item: Item) {
+  formMode.value = 'edit'
+  Object.assign(form, {
+    id: item.id,
+    code: item.code,
+    name: item.name,
+    itemType: item.itemType,
+    unit: item.unit,
+    latestPrice: item.latestPrice,
+    materialTag: item.materialTag ?? 'NORMAL',
+  })
   dialogVisible.value = true
 }
 
@@ -55,9 +76,34 @@ async function submit() {
     ElMessage.warning('请填写编码、名称和单位')
     return
   }
-  await inventoryApi.createItem({ ...form, latestPrice: Number(form.latestPrice) })
-  ElMessage.success('物资档案已新增')
+  const payload = {
+    code: form.code,
+    name: form.name,
+    itemType: form.itemType,
+    unit: form.unit,
+    latestPrice: Number(form.latestPrice),
+    ...(canManageTag.value ? { materialTag: form.materialTag } : {}),
+  }
+  if (formMode.value === 'edit') {
+    if (!form.id) return
+    await inventoryApi.updateItem(form.id, payload)
+    ElMessage.success('物资档案已修改')
+  } else {
+    await inventoryApi.createItem(payload)
+    ElMessage.success('物资档案已新增')
+  }
   dialogVisible.value = false
+  await load()
+}
+
+async function removeItem(item: Item) {
+  await ElMessageBox.confirm(`确定删除物资档案「${item.name}」吗？已有库存或流水引用的物资不能删除。`, '删除物资档案', {
+    confirmButtonText: '删除',
+    cancelButtonText: '取消',
+    type: 'warning',
+  })
+  await inventoryApi.deleteItem(item.id)
+  ElMessage.success('物资档案已删除')
   await load()
 }
 
@@ -74,6 +120,7 @@ function openTagDialog(item: Item) {
 async function saveTag() {
   if (!currentItem.value) return
   await inventoryApi.updateItem(currentItem.value.id, {
+    code: currentItem.value.code,
     name: currentItem.value.name,
     itemType: currentItem.value.itemType,
     unit: currentItem.value.unit,
@@ -142,20 +189,23 @@ load()
         <template #default="scope">{{ itemTypeText(scope.row.itemType) }}</template>
       </el-table-column>
       <el-table-column prop="unit" label="单位" width="100" />
-      <el-table-column prop="latestPrice" label="最新价" width="120" />
+      <el-table-column prop="latestPrice" label="单价" width="120" />
       <el-table-column v-if="canManageTag" label="标签" width="110">
         <template #default="scope">{{ materialTagText(scope.row.materialTag) }}</template>
       </el-table-column>
-      <el-table-column label="操作" width="180">
+      <el-table-column label="操作" width="260">
         <template #default="scope">
           <el-button link type="primary" @click="openImages(scope.row)">图片</el-button>
+          <el-button v-if="canWrite" link type="primary" @click="openEdit(scope.row)">编辑</el-button>
           <el-button v-if="canManageTag" link @click="openTagDialog(scope.row)">标签</el-button>
+          <el-button v-if="canWrite" link type="danger" @click="removeItem(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <el-dialog v-model="dialogVisible" title="新增物资档案" width="520px">
+    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="520px">
       <el-form label-width="90px">
+        <el-form-item v-if="formMode === 'edit'" label="ID"><el-input :model-value="form.id" disabled /></el-form-item>
         <el-form-item label="编码"><el-input v-model="form.code" /></el-form-item>
         <el-form-item label="名称"><el-input v-model="form.name" /></el-form-item>
         <el-form-item label="类型">
@@ -164,8 +214,8 @@ load()
             <el-option label="医疗物资" value="medical" />
           </el-select>
         </el-form-item>
-        <el-form-item label="单位"><el-input v-model="form.unit" /></el-form-item>
-        <el-form-item label="最新价"><el-input-number v-model="form.latestPrice" :min="0" :precision="2" class="form-control" /></el-form-item>
+        <el-form-item label="单位"><el-input v-model="form.unit" placeholder="例如：个、张、克、千克" /></el-form-item>
+        <el-form-item label="单价"><el-input-number v-model="form.latestPrice" :min="0" :precision="2" class="form-control" /></el-form-item>
         <el-form-item v-if="canManageTag" label="标签">
           <el-select v-model="form.materialTag" class="form-control">
             <el-option label="普通物资" value="NORMAL" />

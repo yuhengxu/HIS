@@ -124,13 +124,24 @@ public class InventoryStockService implements OaApprovalListener {
     public ItemRecord updateItem(long actorUserId, long itemId, ItemRequest request) {
         requireInventoryWriter(actorUserId);
         ItemRecord item = getItem(actorUserId, itemId);
-        item.update(request.name(), request.itemType(), request.unit(), request.latestPrice());
+        item.update(request.code(), request.name(), request.itemType(), request.unit(), request.latestPrice());
         if (request.materialTag() != null) {
             permissionService.requireRole(actorUserId, "SYSTEM_ADMIN");
             item.setMaterialTag(normalizeMaterialTag(request.materialTag()));
         }
         auditService.record(actorUserId, "inventory.item.update", "inv_item", String.valueOf(item.id()));
         return item;
+    }
+
+    public void deleteItem(long actorUserId, long itemId) {
+        requireInventoryWriter(actorUserId);
+        try {
+            getItem(actorUserId, itemId);
+            store.deleteItem(itemId);
+            auditService.record(actorUserId, "inventory.item.delete", "inv_item", String.valueOf(itemId));
+        } catch (IllegalStateException ex) {
+            throw new BusinessException(ErrorCode.INVALID_STATE, ex.getMessage());
+        }
     }
 
     public ItemRecord addItemImage(long actorUserId, long itemId, long attachmentId, boolean primary) {

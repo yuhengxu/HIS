@@ -8,7 +8,7 @@ import java.util.Set;
 
 public class ItemRecord {
     private final long id;
-    private final String code;
+    private String code;
     private String name;
     private String itemType;
     private String unit;
@@ -36,7 +36,8 @@ public class ItemRecord {
     public String materialTag() { return materialTag; }
     public Set<Long> imageAttachmentIds() { return imageAttachmentIds; }
 
-    public void update(String name, String itemType, String unit, BigDecimal latestPrice) {
+    public void update(String code, String name, String itemType, String unit, BigDecimal latestPrice) {
+        if (code != null && !code.isBlank()) this.code = code;
         if (name != null && !name.isBlank()) this.name = name;
         if (itemType != null) this.itemType = itemType;
         if (unit != null) this.unit = unit;
